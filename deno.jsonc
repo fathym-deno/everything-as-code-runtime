@@ -15,9 +15,9 @@
   },
   "imports": {
     "@fathym/eac": "https://deno.land/x/fathym_everything_as_code@v0.0.384/mod.ts",
-    "@fathym/eac/runtime": "https://deno.land/x/fathym_eac_runtime@v0.0.207/mod.ts",
-    "@fathym/eac/runtime/": "https://deno.land/x/fathym_eac_runtime@v0.0.207/",
-    "@fathym/eac/runtime/browser": "https://deno.land/x/fathym_eac_runtime@v0.0.207/browser.ts",
+    "@fathym/eac/runtime": "https://deno.land/x/fathym_eac_runtime@v0.0.208/mod.ts",
+    "@fathym/eac/runtime/": "https://deno.land/x/fathym_eac_runtime@v0.0.208/",
+    "@fathym/eac/runtime/browser": "https://deno.land/x/fathym_eac_runtime@v0.0.208/browser.ts",
     "preact": "https://esm.sh/preact@10.19.6",
     "preact/": "https://esm.sh/preact@10.19.6/",
     "preact-render-to-string": "https://esm.sh/*preact-render-to-string@6.4.0",
