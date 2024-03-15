@@ -1,12 +1,8 @@
-import {
-  DefaultEaCConfig,
-  defineEaCConfig,
-  EaCRuntime,
-  FathymDemoPlugin,
-} from '@fathym/eac/runtime';
+import { DefaultEaCConfig, defineEaCConfig, EaCRuntime } from '@fathym/eac/runtime';
+import EaCWebRuntimePlugin from '../src/plugins/EaCWebRuntimePlugin.ts';
 
 export const config = defineEaCConfig({
-  Plugins: [new FathymDemoPlugin(), ...(DefaultEaCConfig.Plugins || [])],
+  Plugins: [new EaCWebRuntimePlugin(), ...(DefaultEaCConfig.Plugins || [])],
 });
 
 export function configure(_rt: EaCRuntime): Promise<void> {
