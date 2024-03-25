@@ -49,6 +49,10 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
               eac2: {
                 Hostname: 'eac2.fathym.com',
               },
+              azureHook: {
+                Hostname: '*',
+                Port: config.Server.port,
+              },
             },
             ModifierResolvers: {
               keepAlive: {
