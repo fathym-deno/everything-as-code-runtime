@@ -1,12 +1,8 @@
-import {
-  DefaultEaCConfig,
-  defineEaCConfig,
-  EaCRuntime,
-} from '@fathym/eac/runtime';
+import { DefaultEaCConfig, defineEaCConfig, EaCRuntime } from '@fathym/eac/runtime';
 import EaCWebPlugin from '../src/plugins/EaCWebPlugin.ts';
 
 export const config = defineEaCConfig({
-  Plugins: [new EaCWebPlugin(), ...(DefaultEaCConfig.Plugins || [])],
+  Plugins: [...(DefaultEaCConfig.Plugins || []), new EaCWebPlugin()],
   Server: {
     port: 6131,
   },

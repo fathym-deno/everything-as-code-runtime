@@ -1,6 +1,6 @@
 import { JSX } from 'preact';
 import { useState } from 'preact/hooks';
-import Button from './Button.tsx';
+import { Action } from '@fathym/atomic';
 
 type CounterProps = JSX.HTMLAttributes<HTMLDivElement>;
 
@@ -11,9 +11,9 @@ export default function Counter(props: CounterProps) {
 
   return (
     <div {...props} class='flex flex-row mx-auto'>
-      <Button onClick={() => setCounter(counter + 1)}>
+      <Action onClick={() => setCounter(counter + 1)}>
         Add to Count: {counter}
-      </Button>
+      </Action>
     </div>
   );
 }

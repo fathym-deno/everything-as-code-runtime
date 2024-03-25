@@ -1,13 +1,12 @@
+import { EaCAtomicIconsProcessor } from '@fathym/atomic-icons';
+import { FathymAtomicIconsPlugin } from '@fathym/atomic-icons/plugin';
+import { EaCRuntimeConfig, EaCRuntimePlugin, EaCRuntimePluginConfig } from '@fathym/eac/runtime';
 import {
-  EaCRuntimeConfig,
-  EaCRuntimePlugin,
-  EaCRuntimePluginConfig,
-} from '@fathym/eac/runtime';
-import {
-EaCAzureADB2CProviderDetails,
+  EaCAzureADB2CProviderDetails,
   EaCBaseHREFModifierDetails,
   EaCDenoKVCacheModifierDetails,
   EaCDenoKVDatabaseDetails,
+  EaCESMDistributedFileSystem,
   EaCKeepAliveModifierDetails,
   EaCLocalDistributedFileSystem,
   EaCOAuthModifierDetails,
@@ -17,13 +16,16 @@ EaCAzureADB2CProviderDetails,
   EaCTailwindProcessor,
   EaCTracingModifierDetails,
 } from '@fathym/eac';
+import { IoCContainer } from '@fathym/ioc';
+import { DefaultEaCWebProcessorHandlerResolver } from './DefaultEaCWebProcessorHandlerResolver.ts';
 
 export default class EaCWebPlugin implements EaCRuntimePlugin {
   constructor() {}
 
   public Build(config: EaCRuntimeConfig): Promise<EaCRuntimePluginConfig> {
     const pluginConfig: EaCRuntimePluginConfig = {
-      Name: 'MyDemoPlugin',
+      Name: 'EaCWebPlugin',
+      Plugins: [new FathymAtomicIconsPlugin()],
       EaC: {
         Projects: {
           demo: {
@@ -55,16 +57,20 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
                 PathPattern: '/api/eac*',
                 Priority: 200,
               },
+              atomicIcons: {
+                PathPattern: '/icons*',
+                Priority: 200,
+              },
               dashboard: {
                 PathPattern: '/dashboard*',
                 Priority: 100,
                 IsPrivate: true,
                 IsTriggerSignIn: true,
               },
-              home: {
-                PathPattern: '/*',
-                Priority: 100,
-              },
+              // home: {
+              //   PathPattern: '*',
+              //   Priority: 100,
+              // },
               oauth: {
                 PathPattern: '/oauth/*',
                 Priority: 500,
@@ -88,11 +94,33 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
               ProxyRoot: 'http://localhost:6130/api/eac',
             } as EaCProxyProcessor,
           },
+          atomicIcons: {
+            Details: {
+              Name: 'Atomic Icons',
+              Description: 'The atomic icons for the project.',
+            },
+            ModifierResolvers: {},
+            Processor: {
+              Type: 'AtomicIcons',
+              Config: {
+                IconSet: {
+                  IconMap: {
+                    begin: 'https://api.iconify.design/fe:beginner.svg',
+                    check: 'https://api.iconify.design/lets-icons:check-fill.svg',
+                    copy: 'https://api.iconify.design/solar:copy-outline.svg',
+                    delete: 'https://api.iconify.design/material-symbols-light:delete.svg',
+                    loading: 'https://api.iconify.design/line-md:loading-alt-loop.svg',
+                  },
+                },
+                Generate: true,
+                SpriteSheet: '/iconset',
+              },
+            } as EaCAtomicIconsProcessor,
+          },
           dashboard: {
             Details: {
               Name: 'Dashboard Site',
-              Description:
-                'The dashboard site to be used for the marketing of the project',
+              Description: 'The dashboard site to be used for the marketing of the project',
             },
             ModifierResolvers: {
               baseHref: {
@@ -102,14 +130,16 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             Processor: {
               Type: 'PreactApp',
               AppDFSLookup: 'local:apps/dashboard',
-              ComponentDFSLookups: ['local:apps/components'],
+              ComponentDFSLookups: [
+                // ['local:apps/components', ['tsx']],
+                ['esm:fathym_atomic_design_kit', ['ts', 'tsx']],
+              ],
             } as EaCPreactAppProcessor,
           },
           home: {
             Details: {
               Name: 'Home Site',
-              Description:
-                'The home site to be used for the marketing of the project',
+              Description: 'The home site to be used for the marketing of the project',
             },
             ModifierResolvers: {
               baseHref: {
@@ -119,7 +149,7 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             Processor: {
               Type: 'PreactApp',
               AppDFSLookup: 'local:apps/home',
-              ComponentDFSLookups: ['local:apps/components'],
+              ComponentDFSLookups: [['local:apps/components', ['tsx']]],
             } as EaCPreactAppProcessor,
           },
           oauth: {
@@ -140,13 +170,16 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             ModifierResolvers: {},
             Processor: {
               Type: 'Tailwind',
-              DFSLookups: ['local:apps/home', 'local:apps/components'],
+              DFSLookups: [
+                'local:apps/components',
+                'local:apps/dashboard',
+                'local:apps/home',
+                'esm:fathym_atomic_design_kit',
+              ],
               ConfigPath: '/apps/tailwind/tailwind.config.ts',
               StylesTemplatePath: './apps/tailwind/styles.css',
               CacheControl: {
-                'text\\/css': `public, max-age=${
-                  60 * 60 * 24 * 365
-                }, immutable`,
+                'text\\/css': `public, max-age=${60 * 60 * 24 * 365}, immutable`,
               },
             } as EaCTailwindProcessor,
           },
@@ -168,22 +201,26 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             DefaultFile: 'index.tsx',
             Extensions: ['tsx'],
           } as EaCLocalDistributedFileSystem,
+          'esm:fathym_atomic_design_kit': {
+            Type: 'ESM',
+            Root: '@fathym/atomic/',
+            EntryPoints: ['mod.ts'],
+            IncludeDependencies: true,
+          } as EaCESMDistributedFileSystem,
         },
         Modifiers: {
           baseHref: {
             Details: {
               Type: 'BaseHREF',
               Name: 'Base HREF',
-              Description:
-                'Adjusts the base HREF of a response based on configureation.',
+              Description: 'Adjusts the base HREF of a response based on configureation.',
             } as EaCBaseHREFModifierDetails,
           },
           keepAlive: {
             Details: {
               Type: 'KeepAlive',
               Name: 'Deno KV Cache',
-              Description:
-                'Lightweight cache to use that stores data in a DenoKV database.',
+              Description: 'Lightweight cache to use that stores data in a DenoKV database.',
               KeepAlivePath: '/_eac/alive',
             } as EaCKeepAliveModifierDetails,
           },
@@ -191,8 +228,7 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             Details: {
               Type: 'OAuth',
               Name: 'OAuth',
-              Description:
-                'Used to restrict user access to various applications.',
+              Description: 'Used to restrict user access to various applications.',
               ProviderLookup: 'adb2c',
               SignInPath: '/oauth/signin',
             } as EaCOAuthModifierDetails,
@@ -211,8 +247,7 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             Details: {
               Type: 'Tracing',
               Name: 'Tracing',
-              Description:
-                'Lightweight cache to use that stores data in a DenoKV database.',
+              Description: 'Lightweight cache to use that stores data in a DenoKV database.',
               TraceRequest: true,
               TraceResponse: true,
             } as EaCTracingModifierDetails,
@@ -261,7 +296,12 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
           },
         },
       },
+      IoC: new IoCContainer(),
     };
+
+    pluginConfig.IoC!.Register(DefaultEaCWebProcessorHandlerResolver, {
+      Type: pluginConfig.IoC!.Symbol('ProcessorHandlerResolver'),
+    });
 
     return Promise.resolve(pluginConfig);
   }

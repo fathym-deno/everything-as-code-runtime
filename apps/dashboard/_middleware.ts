@@ -1,4 +1,3 @@
-import { EverythingAsCode } from '@fathym/eac';
 import { EaCRuntimeContext, EaCRuntimeHandler } from '@fathym/eac/runtime';
 import { EaCWebState } from '../../src/state/EaCWebState.ts';
 import { FathymEaC, loadEaCSvc } from '@fathym/eac/api';
@@ -19,7 +18,7 @@ export default [
     if (currentEntLookup.value) {
       const eacSvc = await loadEaCSvc(
         currentEntLookup.value,
-        ctx.State.Username!
+        ctx.State.Username!,
       );
 
       eac = await eacSvc.Get(currentEntLookup.value);
@@ -31,38 +30,37 @@ export default [
       if (eacs[0]) {
         await denoKv.set(
           ['User', ctx.State.Username!, 'Current', 'EnterpriseLookup'],
-          eacs[0].EnterpriseLookup
+          eacs[0].EnterpriseLookup,
         );
 
         eacSvc = await loadEaCSvc(
           eacs[0].EnterpriseLookup,
-          ctx.State.Username!
+          ctx.State.Username!,
         );
 
         eac = await eacSvc.Get(eacs[0].EnterpriseLookup);
       } else {
         throw new Deno.errors.NotFound(
-          `Unable to locate a current EaC to use for the request.`
+          `Unable to locate a current EaC to use for the request.`,
         );
       }
     }
 
     if (eac) {
-      let [{ value: currentCloudLookup }, { value: currentResGroupLookup }] =
-        await Promise.all([
-          denoKv.get<string>([
-            'User',
-            ctx.State.Username!,
-            'Current',
-            'CloudLookup',
-          ]),
-          denoKv.get<string>([
-            'User',
-            ctx.State.Username!,
-            'Current',
-            'ResourceGroupLookup',
-          ]),
-        ]);
+      let [{ value: currentCloudLookup }, { value: currentResGroupLookup }] = await Promise.all([
+        denoKv.get<string>([
+          'User',
+          ctx.State.Username!,
+          'Current',
+          'CloudLookup',
+        ]),
+        denoKv.get<string>([
+          'User',
+          ctx.State.Username!,
+          'Current',
+          'ResourceGroupLookup',
+        ]),
+      ]);
 
       const cloudLookups = Object.keys(eac.Clouds || {});
 
@@ -84,13 +82,13 @@ export default [
 
         await denoKv.set(
           ['User', ctx.State.Username!, 'Current', 'CloudLookup'],
-          currentCloudLookup
+          currentCloudLookup,
         );
       }
 
       if (currentCloudLookup) {
         const resGroupLookups = Object.keys(
-          eac.Clouds![currentCloudLookup].ResourceGroups || {}
+          eac.Clouds![currentCloudLookup].ResourceGroups || {},
         );
 
         if (
@@ -112,7 +110,7 @@ export default [
 
           await denoKv.set(
             ['User', ctx.State.Username!, 'Current', 'ResourceGroupLookup'],
-            currentResGroupLookup
+            currentResGroupLookup,
           );
         }
       }

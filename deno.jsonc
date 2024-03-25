@@ -14,49 +14,48 @@
     "test": "deno test -A tests/tests.ts --coverage=cov"
   },
   "imports": {
-    "@fathym/common": "https://deno.land/x/fathym_common@v0.0.167/mod.ts",
-    "@fathym/eac": "https://deno.land/x/fathym_everything_as_code@v0.0.384/mod.ts",
-    "@fathym/eac/api": "https://deno.land/x/fathym_everything_as_code_api@v0.0.19/mod.ts",
+    // "@fathym/atomic": "../fathym-atomic/mod.ts",
+    "@fathym/atomic": "https://deno.land/x/fathym_atomic_design_kit@v0.0.113/mod.ts",
+    // "@fathym/atomic/": "../fathym-atomic/",
+    "@fathym/atomic/": "https://deno.land/x/fathym_atomic_design_kit@v0.0.113/",
+    // "@fathym/atomic-icons": "../atomic-icons/mod.ts",
+    "@fathym/atomic-icons": "https://deno.land/x/fathym_atomic_icons@v0.0.31/mod.ts",
+    "@fathym/atomic-icons/plugin": "https://deno.land/x/fathym_atomic_icons@v0.0.31/plugin.ts",
+    "$fathym/atomic-icons": "./build/iconset/icons/_exports.ts",
+    // "@fathym/atomic-icons/browser": "../atomic-icons/browser.ts",
+    "@fathym/atomic-icons/browser": "https://deno.land/x/fathym_atomic_icons@v0.0.31/browser.ts",
+    "@fathym/common": "https://deno.land/x/fathym_common@v0.0.177/mod.ts",
+    // "@fathym/eac": "../everything-as-code/mod.ts",
+    "@fathym/eac": "https://deno.land/x/fathym_everything_as_code@v0.0.398/mod.ts",
+    "@fathym/eac/api": "../everything-as-code-api/mod.ts",
+    // "@fathym/eac/api": "https://deno.land/x/fathym_everything_as_code_api@v0.0.19/mod.ts",
     "@fathym/eac/runtime": "../eac-runtime/mod.ts",
-    // "@fathym/eac/runtime": "https://deno.land/x/fathym_eac_runtime@v0.0.210/mod.ts",
-    "@fathym/eac/runtime/": "https://deno.land/x/fathym_eac_runtime@v0.0.210/",
-    "@fathym/eac/runtime/browser": "https://deno.land/x/fathym_eac_runtime@v0.0.210/browser.ts",
-    "preact": "https://esm.sh/preact@10.19.6",
-    "preact/": "https://esm.sh/preact@10.19.6/",
-    "preact-render-to-string": "https://esm.sh/*preact-render-to-string@6.4.0",
+    // "@fathym/eac/runtime": "https://deno.land/x/fathym_eac_runtime@v0.0.219/mod.ts",
+    "@fathym/eac/runtime/": "../eac-runtime/",
+    // "@fathym/eac/runtime/": "https://deno.land/x/fathym_eac_runtime@v0.0.219/",
+    "@fathym/eac/runtime/browser": "../eac-runtime/browser.ts",
+    // "@fathym/eac/runtime/browser": "https://deno.land/x/fathym_eac_runtime@v0.0.219/browser.ts",
+    "@fathym/ioc": "https://deno.land/x/fathym_ioc@v0.0.7/mod.ts",
+    "preact": "https://esm.sh/preact@10.20.1",
+    "preact/": "https://esm.sh/preact@10.20.1/",
+    "preact-render-to-string": "https://esm.sh/*preact-render-to-string@6.4.1",
     "tailwindcss": "npm:tailwindcss@3.4.1",
     "tailwindcss/": "npm:/tailwindcss@3.4.1/",
     "tailwindcss/plugin": "npm:/tailwindcss@3.4.1/plugin.js",
     "tailwindcss/unimportant": "npm:tailwindcss-unimportant@2.1.1"
   },
-  "exclude": [
-    "**/_eac-runtime/*"
-  ],
+  "exclude": ["**/_eac-runtime/*"],
   "lint": {
-    "include": [
-      "apps/",
-      "configs/",
-      "src/",
-      "tests/"
-    ],
+    "include": ["apps/", "configs/", "src/", "tests/"],
     "exclude": [],
     "rules": {
-      "tags": [
-        "recommended"
-      ],
-      "include": [
-        "ban-untagged-todo"
-      ],
+      "tags": ["recommended"],
+      "include": ["ban-untagged-todo"],
       "exclude": []
     }
   },
   "fmt": {
-    "include": [
-      "apps/",
-      "configs/",
-      "src/",
-      "tests/"
-    ],
+    "include": ["apps/", "configs/", "src/", "tests/"],
     "exclude": [],
     "indentWidth": 2,
     "lineWidth": 100,
@@ -65,9 +64,7 @@
     "singleQuote": true,
     "useTabs": false
   },
-  "unstable": [
-    "kv"
-  ],
+  "unstable": ["kv"],
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "preact"

@@ -1,14 +1,9 @@
 import { redirectRequest } from '@fathym/common';
-import {
-  EaCRuntimeContext,
-  EaCRuntimeHandlerResult,
-  PageProps,
-} from '@fathym/eac/runtime';
+import { EaCRuntimeContext, EaCRuntimeHandlerResult, PageProps } from '@fathym/eac/runtime';
 import { EaCWebState } from '../../src/state/EaCWebState.ts';
 
 export const handler: EaCRuntimeHandlerResult = {
   GET: (_req, ctx: EaCRuntimeContext<EaCWebState>) => {
-    debugger;
     if (!ctx.State.EaC) {
       return redirectRequest('/dashboard/enterprises', false, false);
     } else if (!ctx.State.CloudLookup) {
