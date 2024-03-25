@@ -13,6 +13,7 @@ import {
   EaCOAuthProcessor,
   EaCPreactAppProcessor,
   EaCProxyProcessor,
+  EaCResponseProcessor,
   EaCTailwindProcessor,
   EaCTracingModifierDetails,
 } from '@fathym/eac';
@@ -28,11 +29,11 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
       Plugins: [new FathymAtomicIconsPlugin()],
       EaC: {
         Projects: {
-          demo: {
+          web: {
             Details: {
               Name: 'Everything as Code Web',
               Description: 'The project to use for the EaC website.',
-              Priority: 100,
+              Priority: 500,
             },
             ResolverConfigs: {
               dev: {
@@ -48,10 +49,6 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
               },
               eac2: {
                 Hostname: 'eac2.fathym.com',
-              },
-              azureHook: {
-                Hostname: '*',
-                Port: config.Server.port,
               },
             },
             ModifierResolvers: {
@@ -91,6 +88,26 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
               },
             },
           },
+          azureCheck: {
+            Details: {
+              Name: 'Everything as Code Azure Container Check',
+              Description: 'A check used by azure to determine if the container is running.',
+              Priority: 200,
+            },
+            ResolverConfigs: {
+              azureHook: {
+                Hostname: '*',
+                Path: '/robots933456.txt',
+                Port: config.Server.port,
+              },
+            },
+            ApplicationResolvers: {
+              azureCheck: {
+                PathPattern: '*',
+                Priority: 100,
+              },
+            },
+          },
         },
         Applications: {
           apiProxy: {
@@ -126,6 +143,18 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
                 SpriteSheet: '/iconset',
               },
             } as EaCAtomicIconsProcessor,
+          },
+          azureCheck: {
+            Details: {
+              Name: 'Azure Container Check',
+              Description: 'A response for the azure container check.',
+            },
+            ModifierResolvers: {},
+            Processor: {
+              Type: 'Response',
+              Body: '',
+              Status: 200,
+            } as EaCResponseProcessor,
           },
           dashboard: {
             Details: {
