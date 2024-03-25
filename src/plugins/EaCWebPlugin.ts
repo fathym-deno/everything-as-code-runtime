@@ -43,6 +43,12 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
                 Hostname: '127.0.0.1',
                 Port: config.Server.port || 8000,
               },
+              eac: {
+                Hostname: 'eac.fathym.com',
+              },
+              eac2: {
+                Hostname: 'eac2.fathym.com',
+              },
             },
             ModifierResolvers: {
               keepAlive: {
