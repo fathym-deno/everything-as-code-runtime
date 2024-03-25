@@ -67,10 +67,10 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
                 IsPrivate: true,
                 IsTriggerSignIn: true,
               },
-              // home: {
-              //   PathPattern: '*',
-              //   Priority: 100,
-              // },
+              home: {
+                PathPattern: '*',
+                Priority: 100,
+              },
               oauth: {
                 PathPattern: '/oauth/*',
                 Priority: 500,
