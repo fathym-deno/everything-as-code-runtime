@@ -1,12 +1,12 @@
 import { Action, ActionGroup, CopyInput, Input } from '@fathym/atomic';
-import { EaCGitHubAppDetails } from '@fathym/eac';
+import { EaCGitHubAppProviderDetails } from '@fathym/eac';
 import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac/runtime';
 import { EaCWebState } from '../../../src/state/EaCWebState.ts';
 import { EaCStatusProcessingTypes, FathymEaC, loadEaCSvc, waitForStatus } from '@fathym/eac/api';
 import { redirectRequest } from '@fathym/common';
 
 interface GitHubAppPageData {
-  details?: EaCGitHubAppDetails;
+  details?: EaCGitHubAppProviderDetails;
 }
 
 export const handler: EaCRuntimeHandlerResult<EaCWebState, GitHubAppPageData> = {
@@ -20,6 +20,7 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, GitHubAppPageData> = 
         WebhooksSecret: '',
         Description: '',
         Name: '',
+        Scopes: [],
       },
     };
 
@@ -29,6 +30,10 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, GitHubAppPageData> = 
   async POST(req, ctx) {
     const formData = await req.formData();
 
+    const providerLookup = formData.get('providerLookup') as string;
+
+    const dbLookup = formData.get('dbLookup') as string;
+
     const appId = formData.get('appId') as string;
 
     const shortName = ctx.State.ResourceGroupLookup!.split('-')
@@ -37,16 +42,27 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, GitHubAppPageData> = 
 
     const eac: FathymEaC = {
       EnterpriseLookup: ctx.State.EaC!.EnterpriseLookup!,
-      GitHubApps: {
-        [appId]: {
+      Providers: {
+        [providerLookup]: {
+          DatabaseLookup: dbLookup,
           Details: {
-            AppID: appId,
+            Name: 'Open Biotech GitHub App OAuth Provider',
+            Description: 'The provider used to connect with our Open Biotech GitHub App instance',
             ClientID: formData.get('clientId') as string,
             ClientSecret: formData.get('clientSecret') as string,
             PrivateKey: formData.get('privateKey') as string,
             WebhooksSecret: formData.get('webhooksSecret') as string,
+            Scopes: ['openid'],
+            AppID: appId,
+          } as EaCGitHubAppProviderDetails,
+        },
+      },
+      GitHubApps: {
+        [appId]: {
+          Details: {
             Name: 'Main',
             Description: 'main',
+            ProviderLookup: providerLookup,
           },
           CloudLookup: ctx.State.CloudLookup,
           KeyVaultLookup: `${shortName}-key-vault`,
@@ -85,6 +101,16 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, GitHubAppPageData> = 
 
 export default function GitHubApp({ Data }: PageProps<GitHubAppPageData>) {
   const inputs = [
+    {
+      id: 'providerLookup',
+      placeholder: 'Enter provider lookup',
+      title: 'Provider Lookup',
+    },
+    {
+      id: 'dbLookup',
+      placeholder: 'Enter DB lookup',
+      title: 'DB Lookup',
+    },
     {
       id: 'appId',
       placeholder: 'Enter app ID',

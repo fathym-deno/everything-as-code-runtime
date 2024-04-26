@@ -13,7 +13,7 @@ export default [
       'EnterpriseLookup',
     ]);
 
-    let eac: FathymEaC;
+    let eac: FathymEaC | undefined = undefined;
 
     if (currentEntLookup.value) {
       const eacSvc = await loadEaCSvc(
@@ -39,11 +39,12 @@ export default [
         );
 
         eac = await eacSvc.Get(eacs[0].EnterpriseLookup);
-      } else {
-        throw new Deno.errors.NotFound(
-          `Unable to locate a current EaC to use for the request.`,
-        );
       }
+      // else {
+      //   throw new Deno.errors.NotFound(
+      //     `Unable to locate a current EaC to use for the request.`,
+      //   );
+      // }
     }
 
     if (eac) {

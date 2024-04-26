@@ -1,6 +1,11 @@
 import { EaCAtomicIconsProcessor } from '@fathym/atomic-icons';
 import { FathymAtomicIconsPlugin } from '@fathym/atomic-icons/plugin';
-import { EaCRuntimeConfig, EaCRuntimePlugin, EaCRuntimePluginConfig } from '@fathym/eac/runtime';
+import {
+  EaCRuntimeConfig,
+  EaCRuntimePlugin,
+  EaCRuntimePluginConfig,
+  FathymAzureContainerCheckPlugin,
+} from '@fathym/eac/runtime';
 import {
   EaCAzureADB2CProviderDetails,
   EaCBaseHREFModifierDetails,
@@ -13,7 +18,6 @@ import {
   EaCOAuthProcessor,
   EaCPreactAppProcessor,
   EaCProxyProcessor,
-  EaCResponseProcessor,
   EaCTailwindProcessor,
   EaCTracingModifierDetails,
 } from '@fathym/eac';
@@ -26,7 +30,10 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
   public Build(config: EaCRuntimeConfig): Promise<EaCRuntimePluginConfig> {
     const pluginConfig: EaCRuntimePluginConfig = {
       Name: 'EaCWebPlugin',
-      Plugins: [new FathymAtomicIconsPlugin()],
+      Plugins: [
+        new FathymAzureContainerCheckPlugin(),
+        new FathymAtomicIconsPlugin(),
+      ],
       EaC: {
         Projects: {
           web: {
@@ -49,6 +56,9 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
               },
               eac2: {
                 Hostname: 'eac2.fathym.com',
+              },
+              eacAzure: {
+                Hostname: 'everything-as-code-runtime.azurewebsites.net',
               },
             },
             ModifierResolvers: {
@@ -88,26 +98,6 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
               },
             },
           },
-          azureCheck: {
-            Details: {
-              Name: 'Everything as Code Azure Container Check',
-              Description: 'A check used by azure to determine if the container is running.',
-              Priority: 200,
-            },
-            ResolverConfigs: {
-              azureHook: {
-                Hostname: '*',
-                Path: '/robots933456.txt',
-                Port: config.Server.port,
-              },
-            },
-            ApplicationResolvers: {
-              azureCheck: {
-                PathPattern: '*',
-                Priority: 100,
-              },
-            },
-          },
         },
         Applications: {
           apiProxy: {
@@ -143,18 +133,6 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
                 SpriteSheet: '/iconset',
               },
             } as EaCAtomicIconsProcessor,
-          },
-          azureCheck: {
-            Details: {
-              Name: 'Azure Container Check',
-              Description: 'A response for the azure container check.',
-            },
-            ModifierResolvers: {},
-            Processor: {
-              Type: 'Response',
-              Body: '',
-              Status: 200,
-            } as EaCResponseProcessor,
           },
           dashboard: {
             Details: {
@@ -320,7 +298,7 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
           eac: {
             Details: {
               Type: 'DenoKV',
-              Name: 'Local Cache',
+              Name: 'EaC DB',
               Description: 'The Deno KV database to use for local caching',
               DenoKVPath: Deno.env.get('EAC_DENO_KV_PATH') || undefined,
             } as EaCDenoKVDatabaseDetails,
@@ -328,7 +306,7 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
           oauth: {
             Details: {
               Type: 'DenoKV',
-              Name: 'Local Cache',
+              Name: 'OAuth DB',
               Description: 'The Deno KV database to use for local caching',
               DenoKVPath: Deno.env.get('OAUTH_DENO_KV_PATH') || undefined,
             } as EaCDenoKVDatabaseDetails,

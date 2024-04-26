@@ -15,11 +15,11 @@ export class DefaultEaCWebProcessorHandlerResolver implements ProcessorHandlerRe
   ) {
     const atomicIconsResolver = new DefaultAtomicIconsProcessorHandlerResolver();
 
-    const defaultResolver = new DefaultProcessorHandlerResolver();
-
     let resolver = await atomicIconsResolver.Resolve(ioc, appProcCfg, eac);
 
     if (!resolver) {
+      const defaultResolver = new DefaultProcessorHandlerResolver();
+
       resolver = await defaultResolver.Resolve(ioc, appProcCfg, eac);
     }
 

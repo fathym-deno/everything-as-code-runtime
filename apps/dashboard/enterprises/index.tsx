@@ -48,15 +48,12 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, EnterprisePageData> =
       },
     };
 
-    const eacSvc = await loadEaCSvc(
-      newEaC.EnterpriseLookup!,
-      ctx.State.Username!,
-    );
+    const parentEaCSvc = await loadEaCSvc();
 
-    const createResp = await eacSvc.Create(newEaC, ctx.State.Username!, 60);
+    const createResp = await parentEaCSvc.Create(newEaC, ctx.State.Username!, 60);
 
     const status = await waitForStatusWithFreshJwt(
-      eacSvc,
+      parentEaCSvc,
       createResp.EnterpriseLookup,
       createResp.CommitID,
       ctx.State.Username!,
@@ -162,6 +159,7 @@ export default function Enterprises({ Data }: PageProps<EnterprisePageData>) {
               <EnterpriseManagementItem
                 active={Data.CurrentEnterpriseLookup === enterprise.EnterpriseLookup}
                 enterprise={enterprise}
+                manage={false}
                 deleteActionPath='./enterprises'
                 setActiveActionPath='./enterprises'
               />
