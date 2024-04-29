@@ -5,7 +5,6 @@ import {
   EaCRuntimePlugin,
   EaCRuntimePluginConfig,
   FathymAzureContainerCheckPlugin,
-  IS_BUILDING,
 } from '@fathym/eac/runtime';
 import {
   EaCAzureADB2CProviderDetails,
@@ -25,19 +24,6 @@ import {
 import { IoCContainer } from '@fathym/ioc';
 import { DefaultEaCWebProcessorHandlerResolver } from './DefaultEaCWebProcessorHandlerResolver.ts';
 
-if (!IS_BUILDING) {
-  console.log(
-    '************************************************************************************************',
-  );
-  await Deno.mkdir('/home/denokv');
-
-  const stat = await Deno.stat('/home/denokv');
-
-  console.log(stat);
-  console.log(
-    '************************************************************************************************',
-  );
-}
 export default class EaCWebPlugin implements EaCRuntimePlugin {
   constructor() {}
 
