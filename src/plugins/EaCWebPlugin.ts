@@ -25,22 +25,21 @@ import {
 import { IoCContainer } from '@fathym/ioc';
 import { DefaultEaCWebProcessorHandlerResolver } from './DefaultEaCWebProcessorHandlerResolver.ts';
 
+if (!IS_BUILDING) {
+  console.log(
+    '************************************************************************************************',
+  );
+  await Deno.mkdir('/home/denokv');
+
+  const stat = await Deno.stat('/home/denokv');
+
+  console.log(stat);
+  console.log(
+    '************************************************************************************************',
+  );
+}
 export default class EaCWebPlugin implements EaCRuntimePlugin {
-  constructor() {
-    if (!IS_BUILDING) {
-      console.log(
-        '************************************************************************************************',
-      );
-      Deno.mkdir('/home/denokv');
-
-      const stat = Deno.stat('/home/denokv');
-
-      console.log(stat);
-      console.log(
-        '************************************************************************************************',
-      );
-    }
-  }
+  constructor() {}
 
   public Build(config: EaCRuntimeConfig): Promise<EaCRuntimePluginConfig> {
     const pluginConfig: EaCRuntimePluginConfig = {
