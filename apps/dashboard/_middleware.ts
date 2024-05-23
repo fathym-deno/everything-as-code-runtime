@@ -1,6 +1,6 @@
+import { FathymEaC, loadEaCSvc } from '@fathym/eac/api';
 import { EaCRuntimeContext, EaCRuntimeHandler } from '@fathym/eac/runtime';
 import { EaCWebState } from '../../src/state/EaCWebState.ts';
-import { FathymEaC, loadEaCSvc } from '@fathym/eac/api';
 
 export default [
   async (_req, ctx: EaCRuntimeContext<EaCWebState>) => {
@@ -121,6 +121,16 @@ export default [
       ctx.State.ResourceGroupLookup = currentResGroupLookup || undefined;
 
       ctx.State.EaC = eac;
+
+      const parentEaCSvc = await loadEaCSvc();
+
+      const jwt = await parentEaCSvc.JWT(
+        eac.EnterpriseLookup!,
+        ctx.State.Username!,
+      );
+
+      ctx.State.EaCJWT = jwt.Token;
+      console.log(ctx.State.EaCJWT);
     }
 
     const resp = ctx.Next();

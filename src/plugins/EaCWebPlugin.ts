@@ -7,6 +7,7 @@ import {
   FathymAzureContainerCheckPlugin,
 } from '@fathym/eac/runtime';
 import {
+  EaCAPIProcessor,
   EaCAzureADB2CProviderDetails,
   EaCBaseHREFModifierDetails,
   EaCDenoKVCacheModifierDetails,
@@ -27,7 +28,7 @@ import { DefaultEaCWebProcessorHandlerResolver } from './DefaultEaCWebProcessorH
 export default class EaCWebPlugin implements EaCRuntimePlugin {
   constructor() {}
 
-  public Build(config: EaCRuntimeConfig): Promise<EaCRuntimePluginConfig> {
+  public Setup(config: EaCRuntimeConfig): Promise<EaCRuntimePluginConfig> {
     const pluginConfig: EaCRuntimePluginConfig = {
       Name: 'EaCWebPlugin',
       Plugins: [
@@ -96,6 +97,11 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
                 PathPattern: '/tailwind*',
                 Priority: 500,
               },
+              thinkyApi: {
+                PathPattern: '/api/thinky*',
+                Priority: 200,
+                IsPrivate: true,
+              },
             },
           },
         },
@@ -148,7 +154,7 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
               Type: 'PreactApp',
               AppDFSLookup: 'local:apps/dashboard',
               ComponentDFSLookups: [
-                // ['local:apps/components', ['tsx']],
+                ['local:apps/components', ['tsx']],
                 ['esm:fathym_atomic_design_kit', ['ts', 'tsx']],
               ],
             } as EaCPreactAppProcessor,
@@ -166,7 +172,10 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             Processor: {
               Type: 'PreactApp',
               AppDFSLookup: 'local:apps/home',
-              ComponentDFSLookups: [['local:apps/components', ['tsx']]],
+              ComponentDFSLookups: [
+                ['local:apps/components', ['tsx']],
+                ['esm:fathym_atomic_design_kit', ['ts', 'tsx']],
+              ],
             } as EaCPreactAppProcessor,
           },
           oauth: {
@@ -178,6 +187,18 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
               Type: 'OAuth',
               ProviderLookup: 'adb2c',
             } as EaCOAuthProcessor,
+          },
+          thinkyApi: {
+            Details: {
+              Name: 'Thinky API',
+              Description: 'The local Thinky API calls for Open Biotech',
+            },
+            ModifierResolvers: { currentEaC: { Priority: 9000 } },
+            Processor: {
+              Type: 'API',
+              DFSLookup: 'local:apps/api/thinky',
+              DefaultContentType: 'application/json',
+            } as EaCAPIProcessor,
           },
           tailwind: {
             Details: {
@@ -193,7 +214,7 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
                 'local:apps/home',
                 'esm:fathym_atomic_design_kit',
               ],
-              ConfigPath: '/apps/tailwind/tailwind.config.ts',
+              ConfigPath: './tailwind.config.ts',
               StylesTemplatePath: './apps/tailwind/styles.css',
               CacheControl: {
                 'text\\/css': `public, max-age=${60 * 60 * 24 * 365}, immutable`,
@@ -202,6 +223,12 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
           },
         },
         DFS: {
+          'local:apps/api/thinky': {
+            Type: 'Local',
+            FileRoot: './apps/api/thinky/',
+            DefaultFile: 'index.ts',
+            Extensions: ['ts'],
+          } as EaCLocalDistributedFileSystem,
           'local:apps/components': {
             Type: 'Local',
             FileRoot: './apps/components/',
