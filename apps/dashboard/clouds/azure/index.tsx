@@ -64,6 +64,6 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, AzurePageData> = {
   },
 };
 
-export default function Azure({ Data }: PageProps<AzurePageData>) {
+export default function Azure({}: PageProps<AzurePageData>) {
   return <EaCManageCloudForm action='' />;
 }

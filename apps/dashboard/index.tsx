@@ -1,5 +1,5 @@
 import { redirectRequest } from '@fathym/common';
-import { EaCRuntimeContext, EaCRuntimeHandlerResult, PageProps } from '@fathym/eac/runtime';
+import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac/runtime';
 import { EaCWebState } from '../../src/state/EaCWebState.ts';
 
 export type DashboardPageData = {
@@ -22,6 +22,6 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, DashboardPageData> = 
   },
 };
 
-export default function Dashboard({ Data }: PageProps<DashboardPageData>) {
+export default function Dashboard({}: PageProps<DashboardPageData>) {
   return <div class='flex flex-row'>Begin typing to load your dashboard...</div>;
 }

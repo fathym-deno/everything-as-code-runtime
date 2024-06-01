@@ -7,7 +7,7 @@ export const handler: EaCRuntimeHandlerResult = {
   },
 };
 
-export default function Index(props: PageProps) {
+export default function Index(_props: PageProps) {
   return (
     <div class='mt-8'>
       <SignInSignUp remote={true} />

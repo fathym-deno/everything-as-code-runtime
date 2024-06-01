@@ -1,4 +1,4 @@
-import { Action, ActionGroup, CopyInput, Input } from '@fathym/atomic';
+import { Action, ActionGroup, Input } from '@fathym/atomic';
 import { EaCGitHubAppProviderDetails } from '@fathym/eac';
 import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac/runtime';
 import { EaCWebState } from '../../../src/state/EaCWebState.ts';
@@ -99,7 +99,7 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, GitHubAppPageData> = 
   },
 };
 
-export default function GitHubApp({ Data }: PageProps<GitHubAppPageData>) {
+export default function GitHubApp({}: PageProps<GitHubAppPageData>) {
   const inputs = [
     {
       id: 'providerLookup',

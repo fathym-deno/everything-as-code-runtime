@@ -9,7 +9,7 @@ interface MainLayoutData {
 }
 
 export const handler: EaCRuntimeHandlerResult<EaCWebState, MainLayoutData> = {
-  GET: (req, ctx) => {
+  GET: (_req, ctx) => {
     const data: MainLayoutData = {
       Username: ctx.State.Username,
     };
@@ -20,7 +20,7 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, MainLayoutData> = {
   },
 };
 
-export default function Layout({ Data, Component, Revision }: PageProps) {
+export default function Layout({ Component, Revision }: PageProps) {
   return (
     <html>
       <head>

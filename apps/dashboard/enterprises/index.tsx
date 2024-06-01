@@ -1,5 +1,5 @@
 import { EaCManageForm, EnterpriseManagementItem } from '@fathym/atomic';
-import { redirectRequest, respond } from '@fathym/common';
+import { redirectRequest } from '@fathym/common';
 import { EverythingAsCode } from '@fathym/eac';
 import {
   EaCStatusProcessingTypes,
@@ -9,7 +9,7 @@ import {
   waitForStatus,
   waitForStatusWithFreshJwt,
 } from '@fathym/eac/api';
-import { EaCRuntimeContext, EaCRuntimeHandlerResult, PageProps } from '@fathym/eac/runtime';
+import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac/runtime';
 import { EaCWebState } from '../../../src/state/EaCWebState.ts';
 
 type EnterprisePageData = {
@@ -119,7 +119,7 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, EnterprisePageData> =
 
     const deleteResp = await eacSvc.Delete(eac, true, 60);
 
-    const status = await waitForStatus(
+    const _status = await waitForStatus(
       eacSvc,
       eac.EnterpriseLookup!,
       deleteResp.CommitID,
