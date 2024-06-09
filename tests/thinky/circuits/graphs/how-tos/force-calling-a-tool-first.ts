@@ -141,15 +141,20 @@ Deno.test('Graph Force Calling a Tool First Circuits', async (t) => {
                       messages: [
                         new AIMessage({
                           content: '',
-                          tool_calls: [
-                            {
-                              name: 'search',
-                              args: {
-                                query: humanInput,
+                          additional_kwargs: {
+                            tool_calls: [
+                              {
+                                id: 'tool_abcd123',
+                                type: 'function',
+                                function: {
+                                  name: 'search',
+                                  arguments: JSON.stringify({
+                                    query: humanInput,
+                                  }),
+                                },
                               },
-                              id: 'tool_abcd123',
-                            },
-                          ],
+                            ],
+                          },
                         }),
                       ],
                     };
@@ -180,7 +185,6 @@ Deno.test('Graph Force Calling a Tool First Circuits', async (t) => {
                 return 'continue';
               },
             },
-            final: END,
           },
         } as EaCGraphCircuitDetails,
       },
@@ -200,7 +204,7 @@ Deno.test('Graph Force Calling a Tool First Circuits', async (t) => {
 
   const kv = await ioc.Resolve(Deno.Kv, aiLookup);
 
-  await t.step('Dynamically Returning Directly Circuit', async () => {
+  await t.step('Force Calling a Tool First Circuit', async () => {
     const circuit = await ioc.Resolve<Runnable>(
       ioc.Symbol('Circuit'),
       'tool-first'
