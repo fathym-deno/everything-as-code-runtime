@@ -8,6 +8,8 @@ export * from '@fathym/eac/runtime';
 export * from '@fathym/ioc';
 export * from '@fathym/synaptic';
 
+export { z } from 'npm:zod';
+
 export { AzureAISearchQueryType } from 'npm:@langchain/community/vectorstores/azure_aisearch';
 export { type AgentAction } from 'npm:@langchain/core/agents';
 export { BaseListChatMessageHistory } from 'npm:@langchain/core/chat_history';
@@ -26,4 +28,4 @@ export {
 export { Runnable, RunnableLambda } from 'npm:@langchain/core/runnables';
 export { StructuredTool } from 'npm:@langchain/core/tools';
 export { END, START, StateGraph } from 'npm:@langchain/langgraph';
-export { ToolExecutor } from 'npm:@langchain/langgraph/prebuilt';
+export { ToolExecutor, ToolNode } from 'npm:@langchain/langgraph/prebuilt';

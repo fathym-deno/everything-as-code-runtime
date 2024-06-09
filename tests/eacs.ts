@@ -1,6 +1,6 @@
 import {
   AzureAISearchQueryType,
-  EaCAIAsCode,
+  EaCSynapticAIAsCode,
   EaCAzureOpenAIEmbeddingsDetails,
   EaCAzureOpenAILLMDetails,
   EaCAzureSearchAIVectorStoreDetails,
@@ -124,7 +124,7 @@ export const eacAIsRoot = {
       } as EaCAzureSearchAIVectorStoreDetails,
     },
   },
-} as EaCAIAsCode;
+} as EaCSynapticAIAsCode;
 
 export const eacDatabases = {
   Details: {
