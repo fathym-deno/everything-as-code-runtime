@@ -28,18 +28,15 @@ import {
   z,
 } from '../../../../test.deps.ts';
 
-// https://github.com/langchain-ai/langgraphjs/blob/main/examples/how-tos/dynamically-returning-directly.ipynb
+// https://github.com/langchain-ai/langgraphjs/blob/main/examples/how-tos/force-calling-a-tool-first.ipynb
 
 type ScoredValue = {
   value: string;
   score: number;
 };
 
-Deno.test('Graph Dynamically Returning Directly Circuits', async (t) => {
+Deno.test('Graph Force Calling a Tool First Circuits', async (t) => {
   const aiLookup = 'thinky';
-
-  const itsSunnyText =
-    "It's sunny in San Francisco, but you better look out if you're a Gemini 😈.";
 
   const eac = {
     AIs: {
@@ -67,18 +64,13 @@ Deno.test('Graph Dynamically Returning Directly Circuits', async (t) => {
             Details: {
               Type: 'DynamicStructured',
               Name: 'search',
-              Description: 'Call to surf the web.',
+              Description:
+                'Use to surf the web, fetch current information, check the weather, and retrieve other information.',
               Schema: z.object({
-                query: z.string().describe('query to look up online'),
-                return_direct: z
-                  .boolean()
-                  .describe(
-                    'Whether or not the result of this should be returned directly to the user without you seeing what it is'
-                  )
-                  .default(false),
+                query: z.string().describe('The query to use in your search.'),
               }),
               Action: async ({}: { query: string }) => {
-                return itsSunnyText;
+                return 'Cold, with a low of 13 ℃';
               },
             } as EaCDynamicStructuredToolDetails,
           },
@@ -111,7 +103,7 @@ Deno.test('Graph Dynamically Returning Directly Circuits', async (t) => {
           },
         } as EaCToolExecutorNeuron,
       },
-      drd: {
+      'tool-first': {
         Details: {
           Type: 'Graph',
           Priority: 100,
@@ -138,37 +130,56 @@ Deno.test('Graph Dynamically Returning Directly Circuits', async (t) => {
                 },
               } as Partial<EaCNeuron>,
             ],
-            final: 'thinky-tools',
-            tools: 'thinky-tools',
+            first_agent: {
+              Bootstrap: () => {
+                return RunnableLambda.from(
+                  (state: { messages: BaseMessage[] }) => {
+                    const humanInput =
+                      state.messages[state.messages.length - 1].content || '';
+
+                    return {
+                      messages: [
+                        new AIMessage({
+                          content: '',
+                          tool_calls: [
+                            {
+                              name: 'search',
+                              args: {
+                                query: humanInput,
+                              },
+                              id: 'tool_abcd123',
+                            },
+                          ],
+                        }),
+                      ],
+                    };
+                  }
+                );
+              },
+            } as Partial<EaCNeuron>,
+            action: 'thinky-tools',
           },
           Edges: {
-            [START]: 'agent',
-            // agent: 'tools',
-            // tools: END,
+            [START]: 'first_agent',
+            first_agent: 'action',
+            action: 'agent',
             agent: {
               Node: {
                 [END]: END,
-                final: 'final',
-                tools: 'tools',
+                continue: 'action',
               },
               Condition: (state: { messages: BaseMessage[] }) => {
                 const { messages } = state;
 
                 const lastMessage = messages[messages.length - 1] as AIMessage;
 
-                if (!lastMessage?.additional_kwargs?.tool_calls?.length) {
+                if (!lastMessage.additional_kwargs.tool_calls?.length) {
                   return END;
-                } else {
-                  const args = JSON.parse(
-                    lastMessage.additional_kwargs.tool_calls[0].function
-                      .arguments
-                  );
-
-                  return args?.return_direct ? 'final' : 'tools';
                 }
+
+                return 'continue';
               },
             },
-            tools: 'agent',
             final: END,
           },
         } as EaCGraphCircuitDetails,
@@ -190,29 +201,18 @@ Deno.test('Graph Dynamically Returning Directly Circuits', async (t) => {
   const kv = await ioc.Resolve(Deno.Kv, aiLookup);
 
   await t.step('Dynamically Returning Directly Circuit', async () => {
-    const circuit = await ioc.Resolve<Runnable>(ioc.Symbol('Circuit'), 'drd');
+    const circuit = await ioc.Resolve<Runnable>(
+      ioc.Symbol('Circuit'),
+      'tool-first'
+    );
 
-    let chunk = await circuit.invoke({
+    const chunk = await circuit.invoke({
       messages: [new HumanMessage('what is the weather in sf?')],
     });
 
     assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
 
     console.log(chunk.messages.slice(-1)[0].content);
-
-    chunk = await circuit.invoke({
-      messages: [
-        new HumanMessage(
-          'what is the weather in sf? return this result directly by setting return_direct = True"'
-        ),
-      ],
-    });
-
-    assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
-
-    console.log(chunk.messages.slice(-1)[0].content);
-
-    assertEquals(chunk.messages.slice(-1)[0].content, itsSunnyText);
   });
 
   kv.close();
