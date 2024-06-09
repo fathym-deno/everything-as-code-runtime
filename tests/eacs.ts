@@ -10,6 +10,8 @@ import {
   EaCDenoKVDatabaseDetails,
   EaCDenoKVIndexerDetails,
   EaCRecursiveCharacterTextSplitterDetails,
+  EaCSERPToolDetails,
+  EaCTavilySearchResultsToolDetails,
 } from './test.deps.ts';
 
 export const eacAIsRoot = {
@@ -63,6 +65,19 @@ export const eacAIsRoot = {
         Verbose: false,
       } as EaCAzureOpenAILLMDetails,
     },
+    'thinky-tooled': {
+      Details: {
+        Name: 'Azure OpenAI LLM',
+        Description: 'The LLM for interacting with Azure OpenAI.',
+        APIKey: Deno.env.get('AZURE_OPENAI_KEY')!,
+        Endpoint: Deno.env.get('AZURE_OPENAI_ENDPOINT')!,
+        DeploymentName: 'gpt-4o',
+        ModelName: 'gpt-4o',
+        Streaming: true,
+        Verbose: false,
+        ToolLookups: ['thinky|tavily'],
+      } as EaCAzureOpenAILLMDetails,
+    },
   },
   Loaders: {
     fathym: {
@@ -79,6 +94,20 @@ export const eacAIsRoot = {
         ChunkOverlap: 50,
         ChunkSize: 300,
       } as EaCRecursiveCharacterTextSplitterDetails,
+    },
+  },
+  Tools: {
+    serp: {
+      Details: {
+        Type: 'SERP',
+        APIKey: Deno.env.get('SERP_API_KEY')!,
+      } as EaCSERPToolDetails,
+    },
+    tavily: {
+      Details: {
+        Type: 'TavilySearchResults',
+        APIKey: Deno.env.get('TAVILY_API_KEY')!,
+      } as EaCTavilySearchResultsToolDetails,
     },
   },
   VectorStores: {
