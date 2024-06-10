@@ -7,7 +7,7 @@ import {
   assertStringIncludes,
   BaseMessage,
   EaCAzureOpenAILLMDetails,
-  EaCDynamicStructuredToolDetails,
+  EaCDynamicToolDetails,
   EaCGraphCircuitDetails,
   EaCLLMNeuron,
   EaCNeuron,
@@ -29,11 +29,6 @@ import {
 } from '../../../../test.deps.ts';
 
 // https://github.com/langchain-ai/langgraphjs/blob/main/examples/how-tos/force-calling-a-tool-first.ipynb
-
-type ScoredValue = {
-  value: string;
-  score: number;
-};
 
 Deno.test('Graph Force Calling a Tool First Circuits', async (t) => {
   const aiLookup = 'thinky';
@@ -72,7 +67,7 @@ Deno.test('Graph Force Calling a Tool First Circuits', async (t) => {
               Action: async ({}: { query: string }) => {
                 return 'Cold, with a low of 13 ℃';
               },
-            } as EaCDynamicStructuredToolDetails,
+            } as EaCDynamicToolDetails,
           },
         },
       },

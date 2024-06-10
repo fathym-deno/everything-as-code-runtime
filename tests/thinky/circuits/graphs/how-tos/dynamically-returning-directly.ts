@@ -7,7 +7,7 @@ import {
   assertStringIncludes,
   BaseMessage,
   EaCAzureOpenAILLMDetails,
-  EaCDynamicStructuredToolDetails,
+  EaCDynamicToolDetails,
   EaCGraphCircuitDetails,
   EaCLLMNeuron,
   EaCNeuron,
@@ -29,11 +29,6 @@ import {
 } from '../../../../test.deps.ts';
 
 // https://github.com/langchain-ai/langgraphjs/blob/main/examples/how-tos/dynamically-returning-directly.ipynb
-
-type ScoredValue = {
-  value: string;
-  score: number;
-};
 
 Deno.test('Graph Dynamically Returning Directly Circuits', async (t) => {
   const aiLookup = 'thinky';
@@ -80,7 +75,7 @@ Deno.test('Graph Dynamically Returning Directly Circuits', async (t) => {
               Action: async ({}: { query: string }) => {
                 return itsSunnyText;
               },
-            } as EaCDynamicStructuredToolDetails,
+            } as EaCDynamicToolDetails,
           },
         },
       },

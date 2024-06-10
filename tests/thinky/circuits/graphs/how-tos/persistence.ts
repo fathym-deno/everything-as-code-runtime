@@ -2,7 +2,6 @@ import { eacAIsRoot, eacDatabases } from '../../../../eacs.ts';
 import {
   AIMessage,
   assert,
-  assertEquals,
   assertFalse,
   assertStringIncludes,
   BaseMessage,
@@ -26,13 +25,10 @@ import {
   z,
 } from '../../../../test.deps.ts';
 
-// https://github.com/langchain-ai/langgraphjs/blob/main/examples/how-tos/human-in-the-loop.ipynb
+// https://github.com/langchain-ai/langgraphjs/blob/main/examples/how-tos/persistence.ipynb
 
-Deno.test('Graph Human in the Loop Circuits', async (t) => {
+Deno.test('Persistence Circuits', async (t) => {
   const aiLookup = 'thinky';
-
-  const itsSunnyText =
-    "It's sunny in San Francisco, but you better look out if you're a Gemini 😈.";
 
   const eac = {
     AIs: {
@@ -60,12 +56,13 @@ Deno.test('Graph Human in the Loop Circuits', async (t) => {
             Details: {
               Type: 'DynamicStructured',
               Name: 'search',
-              Description: 'Call to surf the web.',
+              Description:
+                'Use to surf the web, fetch current information, check the weather, and retrieve other information.',
               Schema: z.object({
                 query: z.string().describe('The query to use in your search.'),
               }),
               Action: async ({}: { query: string }) => {
-                return itsSunnyText;
+                return 'Cold, with a low of 13 ℃';
               },
             } as EaCDynamicToolDetails,
           },
@@ -81,35 +78,9 @@ Deno.test('Graph Human in the Loop Circuits', async (t) => {
           Type: 'LLM',
           LLMLookup: `${aiLookup}|thinky-test`,
         } as EaCLLMNeuron,
-        'thinky-tools': {
-          Type: 'ToolExecutor',
-          ToolLookups: ['thinky|test'],
-          MessagesPath: '$.messages',
-          Bootstrap: (r) => {
-            return RunnableLambda.from(
-              async (state: { messages: Array<BaseMessage> }) => {
-                const response = await r.invoke(state);
-
-                return {
-                  messages: response,
-                };
-              }
-            );
-          },
-        } as EaCToolExecutorNeuron,
-      },
-      hitl: {
-        Details: {
-          Type: 'Graph',
-          Priority: 100,
-          State: {
-            messages: {
-              value: (x: BaseMessage[], y: BaseMessage[]) => x.concat(y),
-              default: () => [],
-            },
-          },
+        'thinky-agent': {
           Neurons: {
-            agent: [
+            '': [
               'thinky-llm',
               {
                 Bootstrap: (r) => {
@@ -125,10 +96,40 @@ Deno.test('Graph Human in the Loop Circuits', async (t) => {
                 },
               } as Partial<EaCNeuron>,
             ],
-            tools: 'thinky-tools',
           },
-          Interrupts: {
-            Before: ['tools'],
+        } as Partial<EaCNeuron>,
+        'thinky-tools': {
+          Type: 'ToolExecutor',
+          ToolLookups: ['thinky|test'],
+          MessagesPath: '$.messages',
+          Bootstrap: (r) => {
+            return RunnableLambda.from(
+              async (state: { messages: Array<BaseMessage> }) => {
+                const response = await r.invoke(state);
+
+                console.log('Called tool...');
+
+                return {
+                  messages: response,
+                };
+              }
+            );
+          },
+        } as EaCToolExecutorNeuron,
+      },
+      'no-persist': {
+        Details: {
+          Type: 'Graph',
+          Priority: 100,
+          State: {
+            messages: {
+              value: (x: BaseMessage[], y: BaseMessage[]) => x.concat(y),
+              default: () => [],
+            },
+          },
+          Neurons: {
+            agent: 'thinky-agent',
+            tools: 'thinky-tools',
           },
           Edges: {
             [START]: 'agent',
@@ -142,7 +143,45 @@ Deno.test('Graph Human in the Loop Circuits', async (t) => {
 
                 const lastMessage = messages[messages.length - 1] as AIMessage;
 
-                if (!lastMessage?.additional_kwargs?.tool_calls?.length) {
+                if (!lastMessage.additional_kwargs?.tool_calls?.length) {
+                  return END;
+                }
+
+                return 'tools';
+              },
+            },
+            tools: 'agent',
+          },
+        } as EaCGraphCircuitDetails,
+      },
+      'persist-memory': {
+        Details: {
+          Type: 'Graph',
+          Priority: 100,
+          PersistenceNeuron: 'memory',
+          State: {
+            messages: {
+              value: (x: BaseMessage[], y: BaseMessage[]) => x.concat(y),
+              default: () => [],
+            },
+          },
+          Neurons: {
+            agent: 'thinky-agent',
+            tools: 'thinky-tools',
+          },
+          Edges: {
+            [START]: 'agent',
+            agent: {
+              Node: {
+                [END]: END,
+                tools: 'tools',
+              },
+              Condition: (state: { messages: BaseMessage[] }) => {
+                const { messages } = state;
+
+                const lastMessage = messages[messages.length - 1] as AIMessage;
+
+                if (!lastMessage.additional_kwargs?.tool_calls?.length) {
                   return END;
                 }
 
@@ -169,12 +208,15 @@ Deno.test('Graph Human in the Loop Circuits', async (t) => {
 
   const kv = await ioc.Resolve(Deno.Kv, aiLookup);
 
-  await t.step('Human in the Loop Circuit', async () => {
-    const circuit = await ioc.Resolve<Runnable>(ioc.Symbol('Circuit'), 'hitl');
+  await t.step('No Persist Circuit', async () => {
+    const circuit = await ioc.Resolve<Runnable>(
+      ioc.Symbol('Circuit'),
+      'no-persist'
+    );
 
     let chunk = await circuit.invoke(
       {
-        messages: [new HumanMessage(`Hi! I'm Mike`)],
+        messages: [new HumanMessage(`Hi I'm Mike, nice to meet you.`)],
       },
       {
         configurable: {
@@ -189,7 +231,46 @@ Deno.test('Graph Human in the Loop Circuits', async (t) => {
 
     chunk = await circuit.invoke(
       {
-        messages: [new HumanMessage('What did I tell you my name was?')],
+        messages: [new HumanMessage(`Remember my name?`)],
+      },
+      {
+        configurable: {
+          thread_id: 'test',
+        },
+      }
+    );
+
+    assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
+
+    console.log(chunk.messages.slice(-1)[0].content);
+
+    assertFalse(chunk.messages.slice(-1)[0].content.includes('Mike'));
+  });
+
+  await t.step('Persist Memory Circuit', async () => {
+    const circuit = await ioc.Resolve<Runnable>(
+      ioc.Symbol('Circuit'),
+      'persist-memory'
+    );
+
+    let chunk = await circuit.invoke(
+      {
+        messages: [new HumanMessage(`Hi I'm Mike, nice to meet you.`)],
+      },
+      {
+        configurable: {
+          thread_id: 'test',
+        },
+      }
+    );
+
+    assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
+
+    console.log(chunk.messages.slice(-1)[0].content);
+
+    chunk = await circuit.invoke(
+      {
+        messages: [new HumanMessage(`Remember my name?`)],
       },
       {
         configurable: {
@@ -203,10 +284,17 @@ Deno.test('Graph Human in the Loop Circuits', async (t) => {
     console.log(chunk.messages.slice(-1)[0].content);
 
     assertStringIncludes(chunk.messages.slice(-1)[0].content, 'Mike');
+  });
 
-    chunk = await circuit.invoke(
+  await t.step('Persist DenoKV Circuit', async () => {
+    const circuit = await ioc.Resolve<Runnable>(
+      ioc.Symbol('Circuit'),
+      'persist-denokv'
+    );
+
+    let chunk = await circuit.invoke(
       {
-        messages: [new HumanMessage(`What's the weather in sf now?`)],
+        messages: [new HumanMessage(`Hi I'm Mike, nice to meet you.`)],
       },
       {
         configurable: {
@@ -215,19 +303,26 @@ Deno.test('Graph Human in the Loop Circuits', async (t) => {
       }
     );
 
-    assertFalse(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
+    assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
 
     console.log(chunk.messages.slice(-1)[0].content);
 
-    chunk = await circuit.invoke(null, {
-      configurable: {
-        thread_id: 'test',
+    chunk = await circuit.invoke(
+      {
+        messages: [new HumanMessage(`Remember my name?`)],
       },
-    });
+      {
+        configurable: {
+          thread_id: 'test',
+        },
+      }
+    );
 
     assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
 
     console.log(chunk.messages.slice(-1)[0].content);
+
+    assertStringIncludes(chunk.messages.slice(-1)[0].content, 'Mike');
   });
 
   kv.close();

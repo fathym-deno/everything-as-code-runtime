@@ -1,10 +1,7 @@
-import { ToolMessage } from 'npm:@langchain/core/messages';
 import { eacAIsRoot, eacDatabases } from '../../../../eacs.ts';
 import {
   AIMessage,
   assert,
-  assertFalse,
-  assertStringIncludes,
   BaseMessage,
   EaCAzureOpenAILLMDetails,
   EaCDynamicToolDetails,
@@ -13,6 +10,7 @@ import {
   EaCNeuron,
   EaCPassthroughNeuron,
   EaCToolExecutorNeuron,
+  EaCDefinitionToolDetails,
   END,
   EverythingAsCodeDatabases,
   EverythingAsCodeSynaptic,
@@ -24,11 +22,12 @@ import {
   RunnableLambda,
   START,
   z,
+  zodToJsonSchema,
 } from '../../../../test.deps.ts';
 
-// https://github.com/langchain-ai/langgraphjs/blob/main/examples/how-tos/managing-agent-steps.ipynb
+// https://github.com/langchain-ai/langgraphjs/blob/main/examples/how-tos/respond-in-format.ipynb
 
-Deno.test('Graph Managing Agent Steps Circuits', async (t) => {
+Deno.test('Graph Respond in Format Circuits', async (t) => {
   const aiLookup = 'thinky';
 
   const eac = {
@@ -47,12 +46,28 @@ Deno.test('Graph Managing Agent Steps Circuits', async (t) => {
               ModelName: 'gpt-4o',
               Streaming: true,
               Verbose: false,
-              ToolLookups: ['thinky|test'],
+              ToolLookups: ['thinky|test', 'thinky|response'],
             } as EaCAzureOpenAILLMDetails,
           },
         },
         Tools: {
           ...eacAIsRoot.Tools,
+          response: {
+            Details: {
+              Type: 'DynamicStructured',
+              Name: 'Response',
+              Description: 'Respond to the user using this tool.',
+              Schema: z.object({
+                temperature: z.number().describe('the temperature'),
+                other_notes: z
+                  .string()
+                  .describe('any other notes about the weather'),
+              }),
+              Action: async () => {
+                return 'This tool should not be called.';
+              },
+            } as EaCDynamicToolDetails,
+          },
           test: {
             Details: {
               Type: 'DynamicStructured',
@@ -62,7 +77,7 @@ Deno.test('Graph Managing Agent Steps Circuits', async (t) => {
                 query: z.string().describe('The query to use in your search.'),
               }),
               Action: async ({}: { query: string }) => {
-                return 'Try again in a few seconds! Checking with the weathermen... Call me again next.';
+                return 'The answer to your question lies within.';
               },
             } as EaCDynamicToolDetails,
           },
@@ -87,8 +102,6 @@ Deno.test('Graph Managing Agent Steps Circuits', async (t) => {
               async (state: { messages: Array<BaseMessage> }) => {
                 const response = await r.invoke(state);
 
-                console.log('Called tool...');
-
                 return {
                   messages: response,
                 };
@@ -97,11 +110,10 @@ Deno.test('Graph Managing Agent Steps Circuits', async (t) => {
           },
         } as EaCToolExecutorNeuron,
       },
-      mas: {
+      rif: {
         Details: {
           Type: 'Graph',
           Priority: 100,
-          PersistenceNeuron: 'memory',
           State: {
             messages: {
               value: (x: BaseMessage[], y: BaseMessage[]) => x.concat(y),
@@ -115,25 +127,9 @@ Deno.test('Graph Managing Agent Steps Circuits', async (t) => {
                 Bootstrap: (r) => {
                   return RunnableLambda.from(
                     async (state: { messages: BaseMessage[] }, config) => {
-                      const modelMessages = [];
+                      const { messages } = state;
 
-                      for (let i = state.messages.length - 1; i >= 0; i--) {
-                        modelMessages.push(state.messages[i]);
-
-                        if (modelMessages.length >= 5) {
-                          if (
-                            !ToolMessage.isInstance(
-                              modelMessages[modelMessages.length - 1]
-                            )
-                          ) {
-                            break;
-                          }
-                        }
-                      }
-
-                      modelMessages.reverse();
-
-                      const response = await r.invoke(modelMessages, config);
+                      const response = await r.invoke(messages, config);
 
                       return { messages: [response] };
                     }
@@ -155,7 +151,14 @@ Deno.test('Graph Managing Agent Steps Circuits', async (t) => {
 
                 const lastMessage = messages[messages.length - 1] as AIMessage;
 
-                if (!lastMessage?.additional_kwargs?.tool_calls?.length) {
+                if (!lastMessage.additional_kwargs?.tool_calls?.length) {
+                  return END;
+                }
+
+                if (
+                  lastMessage.additional_kwargs.tool_calls[0].function.name ===
+                  'Response'
+                ) {
                   return END;
                 }
 
@@ -182,27 +185,22 @@ Deno.test('Graph Managing Agent Steps Circuits', async (t) => {
 
   const kv = await ioc.Resolve(Deno.Kv, aiLookup);
 
-  await t.step('Managing Agent Steps Circuit', async () => {
-    const circuit = await ioc.Resolve<Runnable>(ioc.Symbol('Circuit'), 'mas');
+  await t.step('Respond in Format Circuit', async () => {
+    const circuit = await ioc.Resolve<Runnable>(ioc.Symbol('Circuit'), 'rif');
 
-    const chunk = await circuit.invoke(
-      {
-        messages: [
-          new HumanMessage(
-            `what is the weather in sf? Don't give up! Keep using your tools.`
-          ),
-        ],
-      },
-      {
-        configurable: {
-          thread_id: 'test',
-        },
-      }
+    const chunk = await circuit.invoke({
+      messages: [new HumanMessage(`what is the weather in sf?`)],
+    });
+
+    assert(
+      chunk.messages.slice(-1)[0].additional_kwargs?.tool_calls?.[0],
+      JSON.stringify(chunk)
     );
 
-    assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
-
-    console.log(chunk.messages.slice(-1)[0].content);
+    console.log(
+      chunk.messages.slice(-1)[0].additional_kwargs?.tool_calls?.[0].function
+        .arguments
+    );
   });
 
   kv.close();
