@@ -1,7 +1,9 @@
+import { AIMessageChunk } from 'npm:@langchain/core/messages';
 import { eacAIsRoot, eacDatabases } from '../../../../eacs.ts';
 import {
   AIMessage,
   assert,
+  assertFalse,
   BaseMessage,
   EaCAzureOpenAILLMDetails,
   EaCDynamicToolDetails,
@@ -23,9 +25,9 @@ import {
   z,
 } from '../../../../test.deps.ts';
 
-// https://github.com/langchain-ai/langgraphjs/blob/main/examples/how-tos/respond-in-format.ipynb
+// https://github.com/langchain-ai/langgraphjs/blob/main/examples/how-tos/stream-tokens.ipynb
 
-Deno.test('Graph Respond in Format Circuits', async (t) => {
+Deno.test('Graph Stream Tokens Circuits', async (t) => {
   const aiLookup = 'thinky';
 
   const eac = {
@@ -44,38 +46,23 @@ Deno.test('Graph Respond in Format Circuits', async (t) => {
               ModelName: 'gpt-4o',
               Streaming: true,
               Verbose: false,
-              ToolLookups: ['thinky|test', 'thinky|response'],
+              ToolLookups: ['thinky|test'],
             } as EaCAzureOpenAILLMDetails,
           },
         },
         Tools: {
           ...eacAIsRoot.Tools,
-          response: {
-            Details: {
-              Type: 'Dynamic',
-              Name: 'Response',
-              Description: 'Respond to the user using this tool.',
-              Schema: z.object({
-                temperature: z.number().describe('the temperature'),
-                other_notes: z
-                  .string()
-                  .describe('any other notes about the weather'),
-              }),
-              Action: async () => {
-                return 'This tool should not be called.';
-              },
-            } as EaCDynamicToolDetails,
-          },
           test: {
             Details: {
               Type: 'Dynamic',
               Name: 'search',
-              Description: 'Call to surf the web.',
+              Description:
+                'Use to surf the web, fetch current information, check the weather, and retrieve other information.',
               Schema: z.object({
                 query: z.string().describe('The query to use in your search.'),
               }),
               Action: async ({}: { query: string }) => {
-                return 'The answer to your question lies within.';
+                return 'Cold, with a low of 3℃';
               },
             } as EaCDynamicToolDetails,
           },
@@ -108,7 +95,7 @@ Deno.test('Graph Respond in Format Circuits', async (t) => {
           },
         } as EaCToolExecutorNeuron,
       },
-      rif: {
+      stream: {
         Details: {
           Type: 'Graph',
           Priority: 100,
@@ -153,13 +140,6 @@ Deno.test('Graph Respond in Format Circuits', async (t) => {
                   return END;
                 }
 
-                if (
-                  lastMessage.additional_kwargs.tool_calls[0].function.name ===
-                  'Response'
-                ) {
-                  return END;
-                }
-
                 return 'tools';
               },
             },
@@ -183,22 +163,82 @@ Deno.test('Graph Respond in Format Circuits', async (t) => {
 
   const kv = await ioc.Resolve(Deno.Kv, aiLookup);
 
-  await t.step('Respond in Format Circuit', async () => {
-    const circuit = await ioc.Resolve<Runnable>(ioc.Symbol('Circuit'), 'rif');
-
-    const chunk = await circuit.invoke({
-      messages: [new HumanMessage(`what is the weather in sf?`)],
-    });
-
-    assert(
-      chunk.messages.slice(-1)[0].additional_kwargs?.tool_calls?.[0],
-      JSON.stringify(chunk)
+  await t.step('Chat Stream Circuit', async () => {
+    const circuit = await ioc.Resolve<Runnable>(
+      ioc.Symbol('Circuit'),
+      'stream'
     );
 
-    console.log(
-      chunk.messages.slice(-1)[0].additional_kwargs?.tool_calls?.[0].function
-        .arguments
+    const chunks = await circuit.streamEvents(
+      {
+        messages: [new HumanMessage(`Hi, I'm Mike`)],
+      },
+      {
+        // streamMode: 'values',
+        version: 'v1',
+      }
     );
+
+    let content = false;
+    let tool = false;
+
+    for await (const event of chunks) {
+      if (event.event === 'on_llm_stream') {
+        const chunk = event.data?.chunk;
+
+        let msg = chunk.message as AIMessageChunk;
+
+        if (msg.additional_kwargs?.tool_calls?.length) {
+          console.log(msg.tool_call_chunks);
+          tool = true;
+        } else {
+          console.log(msg.content);
+          content = true;
+        }
+      }
+    }
+
+    assert(content);
+    assertFalse(tool);
+  });
+
+  await t.step('Tool Stream Circuit', async () => {
+    const circuit = await ioc.Resolve<Runnable>(
+      ioc.Symbol('Circuit'),
+      'stream'
+    );
+
+    const chunks = await circuit.streamEvents(
+      {
+        messages: [new HumanMessage(`what is the weather in sf?`)],
+      },
+      {
+        // streamMode: 'values',
+        version: 'v1',
+      }
+    );
+
+    let content = false;
+    let tool = false;
+
+    for await (const event of chunks) {
+      if (event.event === 'on_llm_stream') {
+        const chunk = event.data?.chunk;
+
+        const msg = chunk.message as AIMessageChunk;
+
+        if (msg.additional_kwargs?.tool_calls?.length) {
+          console.log(msg.additional_kwargs?.tool_calls[0]);
+          tool = true;
+        } else {
+          console.log(msg.content);
+          content = true;
+        }
+      }
+    }
+
+    assert(content);
+    assert(tool);
   });
 
   kv.close();
