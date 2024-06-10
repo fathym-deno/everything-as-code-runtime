@@ -57,7 +57,7 @@ Deno.test('Graph Force Calling a Tool First Circuits', async (t) => {
           ...eacAIsRoot.Tools,
           test: {
             Details: {
-              Type: 'DynamicStructured',
+              Type: 'Dynamic',
               Name: 'search',
               Description:
                 'Use to surf the web, fetch current information, check the weather, and retrieve other information.',

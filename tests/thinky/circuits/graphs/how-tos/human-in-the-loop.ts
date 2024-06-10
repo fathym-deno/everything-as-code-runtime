@@ -58,7 +58,7 @@ Deno.test('Graph Human in the Loop Circuits', async (t) => {
           ...eacAIsRoot.Tools,
           test: {
             Details: {
-              Type: 'DynamicStructured',
+              Type: 'Dynamic',
               Name: 'search',
               Description: 'Call to surf the web.',
               Schema: z.object({

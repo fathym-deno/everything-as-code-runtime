@@ -55,7 +55,7 @@ Deno.test('Graph Managing Agent Steps Circuits', async (t) => {
           ...eacAIsRoot.Tools,
           test: {
             Details: {
-              Type: 'DynamicStructured',
+              Type: 'Dynamic',
               Name: 'search',
               Description: 'Call to surf the web.',
               Schema: z.object({

@@ -10,7 +10,6 @@ import {
   EaCNeuron,
   EaCPassthroughNeuron,
   EaCToolExecutorNeuron,
-  EaCDefinitionToolDetails,
   END,
   EverythingAsCodeDatabases,
   EverythingAsCodeSynaptic,
@@ -54,7 +53,7 @@ Deno.test('Graph Respond in Format Circuits', async (t) => {
           ...eacAIsRoot.Tools,
           response: {
             Details: {
-              Type: 'DynamicStructured',
+              Type: 'Dynamic',
               Name: 'Response',
               Description: 'Respond to the user using this tool.',
               Schema: z.object({
@@ -70,7 +69,7 @@ Deno.test('Graph Respond in Format Circuits', async (t) => {
           },
           test: {
             Details: {
-              Type: 'DynamicStructured',
+              Type: 'Dynamic',
               Name: 'search',
               Description: 'Call to surf the web.',
               Schema: z.object({

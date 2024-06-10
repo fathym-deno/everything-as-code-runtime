@@ -60,7 +60,7 @@ Deno.test('Graph Dynamically Returning Directly Circuits', async (t) => {
           ...eacAIsRoot.Tools,
           test: {
             Details: {
-              Type: 'DynamicStructured',
+              Type: 'Dynamic',
               Name: 'search',
               Description: 'Call to surf the web.',
               Schema: z.object({
