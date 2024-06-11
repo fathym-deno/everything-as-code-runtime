@@ -22,6 +22,7 @@ import {
   RunnableLambda,
   START,
 } from '../../../../test.deps.ts';
+import { buildTestIoC } from '../../../test-eac-setup.ts';
 
 // https://github.com/langchain-ai/langgraphjs/blob/main/examples/how-tos/configuration.ipynb
 
@@ -47,11 +48,6 @@ Deno.test('Graph Configuration Circuits', async (t) => {
   };
 
   const eac = {
-    AIs: {
-      [aiLookup]: {
-        ...eacAIsRoot,
-      },
-    },
     Circuits: {
       $neurons: {
         $pass: {
@@ -138,20 +134,9 @@ Deno.test('Graph Configuration Circuits', async (t) => {
         } as EaCGraphCircuitDetails,
       },
     },
-    Databases: {
-      [aiLookup]: {
-        ...eacDatabases,
-      },
-    },
   } as EverythingAsCodeSynaptic & EverythingAsCodeDatabases;
 
-  const ioc = new IoCContainer();
-
-  await new FathymEaCServicesPlugin().AfterEaCResolved(eac, ioc);
-
-  await new FathymSynapticEaCServicesPlugin().AfterEaCResolved(eac, ioc);
-
-  const kv = await ioc.Resolve(Deno.Kv, aiLookup);
+  const ioc = await buildTestIoC(eac);
 
   await t.step('Configuration Circuit', async () => {
     const circuit = await ioc.Resolve<Runnable>(
@@ -203,6 +188,4 @@ Deno.test('Graph Configuration Circuits', async (t) => {
       userDB[user as keyof typeof userDB].email
     );
   });
-
-  kv.close();
 });

@@ -25,8 +25,6 @@ type ScoredValue = {
 };
 
 Deno.test('Graph Branching Circuits', async (t) => {
-  const aiLookup = 'thinky';
-
   const loadSimpleBootstrap = (value: string) => {
     return () => {
       return RunnableLambda.from((state: { aggregate: string[] }) => {
@@ -226,8 +224,6 @@ Deno.test('Graph Branching Circuits', async (t) => {
 
   const ioc = await buildTestIoC(eac);
 
-  const kvCleanup = await cleanupKv(aiLookup, ioc);
-
   await t.step('Fan Out Fan In Circuit', async () => {
     const circuit = await ioc.Resolve<Runnable>(
       ioc.Symbol('Circuit'),
@@ -292,6 +288,4 @@ Deno.test('Graph Branching Circuits', async (t) => {
     assertEquals(chunk.aggregate[2], `I'm D`);
     assertEquals(chunk.aggregate[3], `I'm E`);
   });
-
-  kvCleanup();
 });

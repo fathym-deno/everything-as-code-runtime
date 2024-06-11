@@ -25,21 +25,18 @@ import {
   START,
   z,
 } from '../../../../test.deps.ts';
+import { AI_LOOKUP, buildTestIoC } from '../../../test-eac-setup.ts';
 
 // https://github.com/langchain-ai/langgraphjs/blob/main/examples/how-tos/human-in-the-loop.ipynb
 
 Deno.test('Graph Human in the Loop Circuits', async (t) => {
-  const aiLookup = 'thinky';
-
   const itsSunnyText =
     "It's sunny in San Francisco, but you better look out if you're a Gemini 😈.";
 
   const eac = {
     AIs: {
-      [aiLookup]: {
-        ...eacAIsRoot,
+      [AI_LOOKUP]: {
         LLMs: {
-          ...eacAIsRoot.LLMs,
           'thinky-test': {
             Details: {
               Name: 'Azure OpenAI LLM',
@@ -55,7 +52,6 @@ Deno.test('Graph Human in the Loop Circuits', async (t) => {
           },
         },
         Tools: {
-          ...eacAIsRoot.Tools,
           test: {
             Details: {
               Type: 'Dynamic',
@@ -79,7 +75,7 @@ Deno.test('Graph Human in the Loop Circuits', async (t) => {
         } as EaCPassthroughNeuron,
         'thinky-llm': {
           Type: 'LLM',
-          LLMLookup: `${aiLookup}|thinky-test`,
+          LLMLookup: `${AI_LOOKUP}|thinky-test`,
         } as EaCLLMNeuron,
         'thinky-tools': {
           Type: 'ToolExecutor',
@@ -102,7 +98,7 @@ Deno.test('Graph Human in the Loop Circuits', async (t) => {
         Details: {
           Type: 'Graph',
           Priority: 100,
-          PersistenceLookup: `${aiLookup}|memory`,
+          PersistenceLookup: `${AI_LOOKUP}|memory`,
           State: {
             messages: {
               value: (x: BaseMessage[], y: BaseMessage[]) => x.concat(y),
@@ -155,20 +151,9 @@ Deno.test('Graph Human in the Loop Circuits', async (t) => {
         } as EaCGraphCircuitDetails,
       },
     },
-    Databases: {
-      [aiLookup]: {
-        ...eacDatabases,
-      },
-    },
   } as EverythingAsCodeSynaptic & EverythingAsCodeDatabases;
 
-  const ioc = new IoCContainer();
-
-  await new FathymEaCServicesPlugin().AfterEaCResolved(eac, ioc);
-
-  await new FathymSynapticEaCServicesPlugin().AfterEaCResolved(eac, ioc);
-
-  const kv = await ioc.Resolve(Deno.Kv, aiLookup);
+  const ioc = await buildTestIoC(eac);
 
   await t.step('Human in the Loop Circuit', async () => {
     const circuit = await ioc.Resolve<Runnable>(ioc.Symbol('Circuit'), 'hitl');
@@ -230,6 +215,4 @@ Deno.test('Graph Human in the Loop Circuits', async (t) => {
 
     console.log(chunk.messages.slice(-1)[0].content);
   });
-
-  kv.close();
 });

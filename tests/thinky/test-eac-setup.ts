@@ -36,13 +36,21 @@ export async function configureSynapticEaCIoC(
   await new FathymSynapticEaCServicesPlugin().AfterEaCResolved(eac, ioc);
 }
 
-const ioc = new IoCContainer();
+const iocSetup = new Promise<IoCContainer>((resolve) => {
+  const ioc = new IoCContainer();
 
-await configureEaCIoC(eac, ioc);
+  configureEaCIoC(eac, ioc).then(() => {
+    configureSynapticEaCIoC(eac, ioc).then(() => {
+      resolve(ioc);
+    });
+  });
+});
 
 export async function buildTestIoC(
   eac: EverythingAsCodeSynaptic & EverythingAsCodeDatabases
 ) {
+  const ioc = await iocSetup;
+
   const testIoC = new IoCContainer();
 
   await ioc.CopyTo(testIoC);

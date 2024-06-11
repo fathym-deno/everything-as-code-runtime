@@ -24,18 +24,15 @@ import {
   START,
   z,
 } from '../../../../test.deps.ts';
+import { AI_LOOKUP, buildTestIoC } from '../../../test-eac-setup.ts';
 
 // https://github.com/langchain-ai/langgraphjs/blob/main/examples/how-tos/stream-tokens.ipynb
 
 Deno.test('Graph Stream Tokens Circuits', async (t) => {
-  const aiLookup = 'thinky';
-
   const eac = {
     AIs: {
-      [aiLookup]: {
-        ...eacAIsRoot,
+      [AI_LOOKUP]: {
         LLMs: {
-          ...eacAIsRoot.LLMs,
           'thinky-test': {
             Details: {
               Name: 'Azure OpenAI LLM',
@@ -51,7 +48,6 @@ Deno.test('Graph Stream Tokens Circuits', async (t) => {
           },
         },
         Tools: {
-          ...eacAIsRoot.Tools,
           test: {
             Details: {
               Type: 'Dynamic',
@@ -76,7 +72,7 @@ Deno.test('Graph Stream Tokens Circuits', async (t) => {
         } as EaCPassthroughNeuron,
         'thinky-llm': {
           Type: 'LLM',
-          LLMLookup: `${aiLookup}|thinky-test`,
+          LLMLookup: `${AI_LOOKUP}|thinky-test`,
         } as EaCLLMNeuron,
         'thinky-tools': {
           Type: 'ToolExecutor',
@@ -148,20 +144,9 @@ Deno.test('Graph Stream Tokens Circuits', async (t) => {
         } as EaCGraphCircuitDetails,
       },
     },
-    Databases: {
-      [aiLookup]: {
-        ...eacDatabases,
-      },
-    },
   } as EverythingAsCodeSynaptic & EverythingAsCodeDatabases;
 
-  const ioc = new IoCContainer();
-
-  await new FathymEaCServicesPlugin().AfterEaCResolved(eac, ioc);
-
-  await new FathymSynapticEaCServicesPlugin().AfterEaCResolved(eac, ioc);
-
-  const kv = await ioc.Resolve(Deno.Kv, aiLookup);
+  const ioc = await buildTestIoC(eac);
 
   await t.step('Chat Stream Circuit', async () => {
     const circuit = await ioc.Resolve<Runnable>(
@@ -240,6 +225,4 @@ Deno.test('Graph Stream Tokens Circuits', async (t) => {
     assert(content);
     assert(tool);
   });
-
-  kv.close();
 });

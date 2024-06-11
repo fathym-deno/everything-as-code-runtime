@@ -26,6 +26,7 @@ import {
   START,
   z,
 } from '../../../../test.deps.ts';
+import { buildTestIoC } from '../../../test-eac-setup.ts';
 
 // https://github.com/langchain-ai/langgraphjs/blob/main/examples/how-tos/subgraph.ipynb
 
@@ -35,11 +36,6 @@ Deno.test('Graph Subgraphs Circuits', async (t) => {
   const aiLookup = 'thinky';
 
   const eac = {
-    AIs: {
-      [aiLookup]: {
-        // ...eacAIsRoot,
-      },
-    },
     Circuits: {
       $neurons: {
         $pass: {
@@ -367,20 +363,9 @@ Deno.test('Graph Subgraphs Circuits', async (t) => {
         } as EaCGraphCircuitDetails,
       },
     },
-    Databases: {
-      [aiLookup]: {
-        ...eacDatabases,
-      },
-    },
   } as EverythingAsCodeSynaptic & EverythingAsCodeDatabases;
 
-  const ioc = new IoCContainer();
-
-  await new FathymEaCServicesPlugin().AfterEaCResolved(eac, ioc);
-
-  await new FathymSynapticEaCServicesPlugin().AfterEaCResolved(eac, ioc);
-
-  const kv = await ioc.Resolve(Deno.Kv, aiLookup);
+  const ioc = await buildTestIoC(eac);
 
   await t.step('Parent + Child Circuit', async () => {
     const circuit = await ioc.Resolve<Runnable>(ioc.Symbol('Circuit'), 'main');
@@ -424,6 +409,4 @@ Deno.test('Graph Subgraphs Circuits', async (t) => {
     assertEquals(chunk.path[5].val, 'sibling');
     assertEquals(chunk.path[6].val, 'fin');
   });
-
-  kv.close();
 });

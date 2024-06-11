@@ -2,9 +2,6 @@ import { eacAIsRoot, eacDatabases } from '../../../../eacs.ts';
 import {
   AIMessage,
   assert,
-  assertEquals,
-  assertStrictEquals,
-  assertStringIncludes,
   BaseMessage,
   EaCAzureOpenAILLMDetails,
   EaCDynamicToolDetails,
@@ -13,7 +10,6 @@ import {
   EaCNeuron,
   EaCPassthroughNeuron,
   EaCToolExecutorNeuron,
-  EaCToolNodeNeuron,
   END,
   EverythingAsCodeDatabases,
   EverythingAsCodeSynaptic,
@@ -24,21 +20,17 @@ import {
   Runnable,
   RunnableLambda,
   START,
-  ToolNode,
   z,
 } from '../../../../test.deps.ts';
+import { AI_LOOKUP, buildTestIoC } from '../../../test-eac-setup.ts';
 
 // https://github.com/langchain-ai/langgraphjs/blob/main/examples/how-tos/force-calling-a-tool-first.ipynb
 
 Deno.test('Graph Force Calling a Tool First Circuits', async (t) => {
-  const aiLookup = 'thinky';
-
   const eac = {
     AIs: {
-      [aiLookup]: {
-        ...eacAIsRoot,
+      [AI_LOOKUP]: {
         LLMs: {
-          ...eacAIsRoot.LLMs,
           'thinky-test': {
             Details: {
               Name: 'Azure OpenAI LLM',
@@ -54,7 +46,6 @@ Deno.test('Graph Force Calling a Tool First Circuits', async (t) => {
           },
         },
         Tools: {
-          ...eacAIsRoot.Tools,
           test: {
             Details: {
               Type: 'Dynamic',
@@ -79,7 +70,7 @@ Deno.test('Graph Force Calling a Tool First Circuits', async (t) => {
         } as EaCPassthroughNeuron,
         'thinky-llm': {
           Type: 'LLM',
-          LLMLookup: `${aiLookup}|thinky-test`,
+          LLMLookup: `${AI_LOOKUP}|thinky-test`,
         } as EaCLLMNeuron,
         'thinky-tools': {
           Type: 'ToolExecutor',
@@ -184,20 +175,9 @@ Deno.test('Graph Force Calling a Tool First Circuits', async (t) => {
         } as EaCGraphCircuitDetails,
       },
     },
-    Databases: {
-      [aiLookup]: {
-        ...eacDatabases,
-      },
-    },
   } as EverythingAsCodeSynaptic & EverythingAsCodeDatabases;
 
-  const ioc = new IoCContainer();
-
-  await new FathymEaCServicesPlugin().AfterEaCResolved(eac, ioc);
-
-  await new FathymSynapticEaCServicesPlugin().AfterEaCResolved(eac, ioc);
-
-  const kv = await ioc.Resolve(Deno.Kv, aiLookup);
+  const ioc = await buildTestIoC(eac);
 
   await t.step('Force Calling a Tool First Circuit', async () => {
     const circuit = await ioc.Resolve<Runnable>(
@@ -213,6 +193,4 @@ Deno.test('Graph Force Calling a Tool First Circuits', async (t) => {
 
     console.log(chunk.messages.slice(-1)[0].content);
   });
-
-  kv.close();
 });
