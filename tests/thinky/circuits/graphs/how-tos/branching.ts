@@ -15,6 +15,7 @@ import {
   RunnableLambda,
   START,
 } from '../../../../test.deps.ts';
+import { buildTestIoC, cleanupKv } from '../../../test-eac-setup.ts';
 
 // https://github.com/langchain-ai/langgraphjs/blob/main/examples/how-tos/branching.ipynb
 
@@ -47,11 +48,6 @@ Deno.test('Graph Branching Circuits', async (t) => {
   };
 
   const eac = {
-    AIs: {
-      [aiLookup]: {
-        ...eacAIsRoot,
-      },
-    },
     Circuits: {
       $neurons: {
         $pass: {
@@ -226,20 +222,11 @@ Deno.test('Graph Branching Circuits', async (t) => {
         } as EaCGraphCircuitDetails,
       },
     },
-    Databases: {
-      [aiLookup]: {
-        ...eacDatabases,
-      },
-    },
   } as EverythingAsCodeSynaptic & EverythingAsCodeDatabases;
 
-  const ioc = new IoCContainer();
+  const ioc = await buildTestIoC(eac);
 
-  await new FathymEaCServicesPlugin().AfterEaCResolved(eac, ioc);
-
-  await new FathymSynapticEaCServicesPlugin().AfterEaCResolved(eac, ioc);
-
-  const kv = await ioc.Resolve(Deno.Kv, aiLookup);
+  const kvCleanup = await cleanupKv(aiLookup, ioc);
 
   await t.step('Fan Out Fan In Circuit', async () => {
     const circuit = await ioc.Resolve<Runnable>(
@@ -306,5 +293,5 @@ Deno.test('Graph Branching Circuits', async (t) => {
     assertEquals(chunk.aggregate[3], `I'm E`);
   });
 
-  kv.close();
+  kvCleanup();
 });
