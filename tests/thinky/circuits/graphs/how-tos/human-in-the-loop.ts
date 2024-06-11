@@ -102,6 +102,7 @@ Deno.test('Graph Human in the Loop Circuits', async (t) => {
         Details: {
           Type: 'Graph',
           Priority: 100,
+          PersistenceLookup: `${aiLookup}|memory`,
           State: {
             messages: {
               value: (x: BaseMessage[], y: BaseMessage[]) => x.concat(y),

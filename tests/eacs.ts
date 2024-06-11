@@ -9,6 +9,8 @@ import {
   EaCDenoKVChatHistoryDetails,
   EaCDenoKVDatabaseDetails,
   EaCDenoKVIndexerDetails,
+  EaCDenoKVSaverPersistenceDetails,
+  EaCMemorySaverPersistenceDetails,
   EaCRecursiveCharacterTextSplitterDetails,
   EaCSERPToolDetails,
   EaCTavilySearchResultsToolDetails,
@@ -85,6 +87,21 @@ export const eacAIsRoot = {
         Type: 'CheerioWeb',
         URL: 'https://www.fathym.com',
       } as EaCCheerioWebDocumentLoaderDetails,
+    },
+  },
+  Persistence: {
+    denokv: {
+      Details: {
+        Type: 'DenoKVSaver',
+        DatabaseLookup: 'thinky',
+        RootKey: ['Thinky', 'EaC'],
+        CheckpointTTL: 1 * 1000 * 60 * 60 * 24 * 7, // 7 Days
+      } as EaCDenoKVSaverPersistenceDetails,
+    },
+    memory: {
+      Details: {
+        Type: 'MemorySaver',
+      } as EaCMemorySaverPersistenceDetails,
     },
   },
   TextSplitters: {

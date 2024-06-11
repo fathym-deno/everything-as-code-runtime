@@ -158,7 +158,45 @@ Deno.test('Persistence Circuits', async (t) => {
         Details: {
           Type: 'Graph',
           Priority: 100,
-          PersistenceNeuron: 'memory',
+          PersistenceLookup: `${aiLookup}|memory`,
+          State: {
+            messages: {
+              value: (x: BaseMessage[], y: BaseMessage[]) => x.concat(y),
+              default: () => [],
+            },
+          },
+          Neurons: {
+            agent: 'thinky-agent',
+            tools: 'thinky-tools',
+          },
+          Edges: {
+            [START]: 'agent',
+            agent: {
+              Node: {
+                [END]: END,
+                tools: 'tools',
+              },
+              Condition: (state: { messages: BaseMessage[] }) => {
+                const { messages } = state;
+
+                const lastMessage = messages[messages.length - 1] as AIMessage;
+
+                if (!lastMessage.additional_kwargs?.tool_calls?.length) {
+                  return END;
+                }
+
+                return 'tools';
+              },
+            },
+            tools: 'agent',
+          },
+        } as EaCGraphCircuitDetails,
+      },
+      'persist-denokv': {
+        Details: {
+          Type: 'Graph',
+          Priority: 100,
+          PersistenceLookup: `${aiLookup}|denokv`,
           State: {
             messages: {
               value: (x: BaseMessage[], y: BaseMessage[]) => x.concat(y),
@@ -286,7 +324,7 @@ Deno.test('Persistence Circuits', async (t) => {
     assertStringIncludes(chunk.messages.slice(-1)[0].content, 'Mike');
   });
 
-  await t.step('Persist DenoKV Circuit', async () => {
+  await t.step('Persist DenoKV Circuit', async (t) => {
     const circuit = await ioc.Resolve<Runnable>(
       ioc.Symbol('Circuit'),
       'persist-denokv'
@@ -308,6 +346,30 @@ Deno.test('Persistence Circuits', async (t) => {
     console.log(chunk.messages.slice(-1)[0].content);
 
     chunk = await circuit.invoke(
+      {
+        messages: [new HumanMessage(`Remember my name?`)],
+      },
+      {
+        configurable: {
+          thread_id: 'test',
+        },
+      }
+    );
+
+    assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
+
+    console.log(chunk.messages.slice(-1)[0].content);
+
+    assertStringIncludes(chunk.messages.slice(-1)[0].content, 'Mike');
+  });
+
+  await t.step('Persist DenoKV ReCheck Circuit', async () => {
+    const circuit = await ioc.Resolve<Runnable>(
+      ioc.Symbol('Circuit'),
+      'persist-denokv'
+    );
+
+    const chunk = await circuit.invoke(
       {
         messages: [new HumanMessage(`Remember my name?`)],
       },

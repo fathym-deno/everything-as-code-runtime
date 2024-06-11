@@ -11,7 +11,7 @@
     "deploy:docker": "docker run -dp 127.0.0.1:3000:3000 eac-runtime",
     "dev": "deno run -A --watch=apps/,configs/,data/,routes/,src/,static/ dev.ts",
     "start": "deno run -A main.ts",
-    "test": "deno test -A tests/tests.ts --coverage=cov"
+    "test": "deno test -A tests/tests.ts --coverage=cov --parallel"
   },
   "imports": {
     // "@fathym/atomic": "../fathym-atomic/mod.ts",

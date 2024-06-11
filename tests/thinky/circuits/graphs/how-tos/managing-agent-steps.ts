@@ -101,7 +101,7 @@ Deno.test('Graph Managing Agent Steps Circuits', async (t) => {
         Details: {
           Type: 'Graph',
           Priority: 100,
-          PersistenceNeuron: 'memory',
+          PersistenceLookup: `${aiLookup}|memory`,
           State: {
             messages: {
               value: (x: BaseMessage[], y: BaseMessage[]) => x.concat(y),
