@@ -33,8 +33,6 @@ import { buildTestIoC } from '../../../test-eac-setup.ts';
 type ValWithId = { id?: string; val: string };
 
 Deno.test('Graph Subgraphs Circuits', async (t) => {
-  const aiLookup = 'thinky';
-
   const eac = {
     Circuits: {
       $neurons: {
