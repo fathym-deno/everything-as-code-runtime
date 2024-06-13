@@ -2,6 +2,7 @@ import { EaCAtomicIconsProcessor } from '@fathym/atomic-icons';
 import { FathymAtomicIconsPlugin } from '@fathym/atomic-icons/plugin';
 import {
   EaCRuntimeConfig,
+  EaCRuntimeEaC,
   EaCRuntimePlugin,
   EaCRuntimePluginConfig,
   FathymAzureContainerCheckPlugin,
@@ -9,8 +10,10 @@ import {
 import {
   EaCAPIProcessor,
   EaCAzureADB2CProviderDetails,
+  EaCAzureOpenAILLMDetails,
   EaCBaseHREFModifierDetails,
   EaCDenoKVCacheModifierDetails,
+  EaCDenoKVChatHistoryDetails,
   EaCDenoKVDatabaseDetails,
   EaCESMDistributedFileSystem,
   EaCKeepAliveModifierDetails,
@@ -24,6 +27,22 @@ import {
 } from '@fathym/eac';
 import { IoCContainer } from '@fathym/ioc';
 import { DefaultEaCWebProcessorHandlerResolver } from './DefaultEaCWebProcessorHandlerResolver.ts';
+import {
+  EaCChatHistoryNeuron,
+  EaCChatPromptNeuron,
+  EaCLLMNeuron,
+  EaCSynapticCircuitsProcessor,
+  EverythingAsCodeSynaptic,
+  FathymSynapticPlugin,
+} from '@fathym/synaptic';
+import {
+  BaseMessage,
+  BaseMessagePromptTemplateLike,
+  MessagesPlaceholder,
+  z,
+} from '../../tests/test.deps.ts';
+import { RunnableLambda } from 'npm:@langchain/core/runnables';
+import { coerceMessageLikeToMessage } from 'npm:@langchain/core/messages';
 
 export default class EaCWebPlugin implements EaCRuntimePlugin {
   constructor() {}
@@ -34,6 +53,7 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
       Plugins: [
         new FathymAzureContainerCheckPlugin(),
         new FathymAtomicIconsPlugin(),
+        new FathymSynapticPlugin(),
       ],
       EaC: {
         Projects: {
@@ -78,6 +98,11 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
               atomicIcons: {
                 PathPattern: '/icons*',
                 Priority: 200,
+              },
+              circuits: {
+                PathPattern: '/circuits*',
+                Priority: 100,
+                // IsPrivate: true,
               },
               dashboard: {
                 PathPattern: '/dashboard*',
@@ -129,10 +154,13 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
                 IconSet: {
                   IconMap: {
                     begin: 'https://api.iconify.design/fe:beginner.svg',
-                    check: 'https://api.iconify.design/lets-icons:check-fill.svg',
+                    check:
+                      'https://api.iconify.design/lets-icons:check-fill.svg',
                     copy: 'https://api.iconify.design/solar:copy-outline.svg',
-                    delete: 'https://api.iconify.design/material-symbols-light:delete.svg',
-                    loading: 'https://api.iconify.design/line-md:loading-alt-loop.svg',
+                    delete:
+                      'https://api.iconify.design/material-symbols-light:delete.svg',
+                    loading:
+                      'https://api.iconify.design/line-md:loading-alt-loop.svg',
                   },
                 },
                 Generate: true,
@@ -140,10 +168,21 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
               },
             } as EaCAtomicIconsProcessor,
           },
+          circuits: {
+            Details: {
+              Name: 'Circuits',
+              Description: 'The API for accessing circuits',
+            },
+            ModifierResolvers: {},
+            Processor: {
+              Type: 'SynapticCircuits',
+            } as EaCSynapticCircuitsProcessor,
+          },
           dashboard: {
             Details: {
               Name: 'Dashboard Site',
-              Description: 'The dashboard site to be used for the marketing of the project',
+              Description:
+                'The dashboard site to be used for the marketing of the project',
             },
             ModifierResolvers: {
               baseHref: {
@@ -162,7 +201,8 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
           home: {
             Details: {
               Name: 'Home Site',
-              Description: 'The home site to be used for the marketing of the project',
+              Description:
+                'The home site to be used for the marketing of the project',
             },
             ModifierResolvers: {
               baseHref: {
@@ -217,7 +257,9 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
               ConfigPath: './tailwind.config.ts',
               StylesTemplatePath: './apps/tailwind/styles.css',
               CacheControl: {
-                'text\\/css': `public, max-age=${60 * 60 * 24 * 365}, immutable`,
+                'text\\/css': `public, max-age=${
+                  60 * 60 * 24 * 365
+                }, immutable`,
               },
             } as EaCTailwindProcessor,
           },
@@ -257,14 +299,16 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             Details: {
               Type: 'BaseHREF',
               Name: 'Base HREF',
-              Description: 'Adjusts the base HREF of a response based on configureation.',
+              Description:
+                'Adjusts the base HREF of a response based on configureation.',
             } as EaCBaseHREFModifierDetails,
           },
           keepAlive: {
             Details: {
               Type: 'KeepAlive',
               Name: 'Deno KV Cache',
-              Description: 'Lightweight cache to use that stores data in a DenoKV database.',
+              Description:
+                'Lightweight cache to use that stores data in a DenoKV database.',
               KeepAlivePath: '/_eac/alive',
             } as EaCKeepAliveModifierDetails,
           },
@@ -272,7 +316,8 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             Details: {
               Type: 'OAuth',
               Name: 'OAuth',
-              Description: 'Used to restrict user access to various applications.',
+              Description:
+                'Used to restrict user access to various applications.',
               ProviderLookup: 'adb2c',
               SignInPath: '/oauth/signin',
             } as EaCOAuthModifierDetails,
@@ -291,7 +336,8 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             Details: {
               Type: 'Tracing',
               Name: 'Tracing',
-              Description: 'Lightweight cache to use that stores data in a DenoKV database.',
+              Description:
+                'Lightweight cache to use that stores data in a DenoKV database.',
               TraceRequest: true,
               TraceResponse: true,
             } as EaCTracingModifierDetails,
@@ -302,7 +348,8 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             DatabaseLookup: 'oauth',
             Details: {
               Name: 'Azure ADB2C OAuth Provider',
-              Description: 'The provider used to connect with our azure adb2c instance',
+              Description:
+                'The provider used to connect with our azure adb2c instance',
               ClientID: Deno.env.get('AZURE_ADB2C_CLIENT_ID')!,
               ClientSecret: Deno.env.get('AZURE_ADB2C_CLIENT_SECRET')!,
               Scopes: ['openid', Deno.env.get('AZURE_ADB2C_CLIENT_ID')!],
@@ -338,8 +385,87 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
               DenoKVPath: Deno.env.get('OAUTH_DENO_KV_PATH') || undefined,
             } as EaCDenoKVDatabaseDetails,
           },
+          thinky: {
+            Details: {
+              Type: 'DenoKV',
+              Name: 'Thinky',
+              Description: 'The Deno KV database to use for thinky',
+              DenoKVPath: Deno.env.get('THINKY_DENO_KV_PATH') || undefined,
+            } as EaCDenoKVDatabaseDetails,
+          },
         },
-      },
+        AIs: {
+          thinky: {
+            ChatHistories: {
+              tester: {
+                Details: {
+                  Type: 'DenoKV',
+                  Name: 'Thinky',
+                  Description: 'The Thinky document indexer to use.',
+                  DenoKVDatabaseLookup: 'thinky',
+                  RootKey: ['Thinky', 'EaC', 'ChatHistory', 'Tester'],
+                } as EaCDenoKVChatHistoryDetails,
+              },
+            },
+            LLMs: {
+              thinky: {
+                Details: {
+                  Name: 'Azure OpenAI LLM',
+                  Description: 'The LLM for interacting with Azure OpenAI.',
+                  APIKey: Deno.env.get('AZURE_OPENAI_KEY')!,
+                  Endpoint: Deno.env.get('AZURE_OPENAI_ENDPOINT')!,
+                  DeploymentName: 'gpt-4o',
+                  ModelName: 'gpt-4o',
+                  Streaming: true,
+                  Verbose: false,
+                } as EaCAzureOpenAILLMDetails,
+              },
+            },
+          },
+        },
+        Circuits: {
+          $neurons: {
+            'thinky-llm': {
+              Type: 'LLM',
+              LLMLookup: `thinky|thinky`,
+            } as EaCLLMNeuron,
+          },
+          'basic-chat-w-history': {
+            Details: {
+              Type: 'Linear',
+              Name: 'basic-chat',
+              Description: 'Used to have an open ended chat with you.',
+              InputSchema: z.object({
+                input: z.string().describe('The users new message.'),
+              }),
+              Priority: 100,
+              Neurons: {
+                '': {
+                  Type: 'ChatHistory',
+                  ChatHistoryLookup: `thinky|tester`,
+                  InputKey: 'input',
+                  HistoryKey: 'messages',
+                  Neurons: {
+                    '': {
+                      Type: 'ChatPrompt',
+                      InputKey: 'question',
+                      SystemMessage: 'You are a helpful, pirate assistant.',
+                      Messages: [
+                        // ...baseMessages,
+                        new MessagesPlaceholder('messages'),
+                      ] as BaseMessagePromptTemplateLike[],
+                      NewMessages: [['human', '{input}']],
+                      Neurons: {
+                        '': 'thinky-llm',
+                      },
+                    } as EaCChatPromptNeuron,
+                  },
+                } as EaCChatHistoryNeuron,
+              },
+            },
+          },
+        },
+      } as EaCRuntimeEaC & EverythingAsCodeSynaptic,
       IoC: new IoCContainer(),
     };
 

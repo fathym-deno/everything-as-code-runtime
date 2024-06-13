@@ -1,4 +1,3 @@
-import { eacAIsRoot, eacDatabases } from '../../eacs.ts';
 import {
   AIMessage,
   assert,
@@ -180,7 +179,7 @@ Deno.test('Circuits', async (t) => {
                     } as Partial<EaCChatPromptNeuron>,
                   ],
                 },
-              } as Partial<EaCChatPromptNeuron>,
+              } as Partial<EaCChatHistoryNeuron>,
             ],
           },
         },
