@@ -309,37 +309,40 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             FileRoot: './apps/api/thinky/',
             DefaultFile: 'index.ts',
             Extensions: ['ts'],
+            WorkerPath: import.meta.resolve(
+              '@fathym/eac/runtime/src/runtime/dfs/workers/EaCLocalDistributedFileSystemWorker.ts',
+            ),
           } as EaCLocalDistributedFileSystem,
           'local:apps/components': {
             Type: 'Local',
             FileRoot: './apps/components/',
+            WorkerPath: import.meta.resolve(
+              '@fathym/eac/runtime/src/runtime/dfs/workers/EaCLocalDistributedFileSystemWorker.ts',
+            ),
           } as EaCLocalDistributedFileSystem,
           'local:apps/dashboard': {
             Type: 'Local',
             FileRoot: './apps/dashboard/',
             DefaultFile: 'index.tsx',
             Extensions: ['tsx'],
+            WorkerPath: import.meta.resolve(
+              '@fathym/eac/runtime/src/runtime/dfs/workers/EaCLocalDistributedFileSystemWorker.ts',
+            ),
           } as EaCLocalDistributedFileSystem,
           'local:apps/home': {
             Type: 'Local',
             FileRoot: './apps/home/',
             DefaultFile: 'index.tsx',
             Extensions: ['tsx'],
+            WorkerPath: import.meta.resolve(
+              '@fathym/eac/runtime/src/runtime/dfs/workers/EaCLocalDistributedFileSystemWorker.ts',
+            ),
           } as EaCLocalDistributedFileSystem,
           'esm:fathym_atomic_design_kit': {
             Type: 'ESM',
             Root: '@fathym/atomic/',
             EntryPoints: ['mod.ts'],
             IncludeDependencies: true,
-            WorkerPath: import.meta.resolve(
-              '@fathym/eac/runtime/src/runtime/dfs/workers/EaCESMDistributedFileSystemWorker.ts',
-            ),
-          } as EaCESMDistributedFileSystem,
-          'esm:fathym-synaptic-resolvers': {
-            Type: 'ESM',
-            Root: '@fathym/synaptic/',
-            EntryPoints: ['resolvers.ts'],
-            IncludeDependencies: false,
             WorkerPath: import.meta.resolve(
               '@fathym/eac/runtime/src/runtime/dfs/workers/EaCESMDistributedFileSystemWorker.ts',
             ),
