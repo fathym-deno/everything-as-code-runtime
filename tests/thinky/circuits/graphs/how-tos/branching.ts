@@ -1,4 +1,3 @@
-import { eacAIsRoot, eacDatabases } from '../../../../eacs.ts';
 import {
   assert,
   assertEquals,
@@ -8,14 +7,11 @@ import {
   END,
   EverythingAsCodeDatabases,
   EverythingAsCodeSynaptic,
-  FathymEaCServicesPlugin,
-  FathymSynapticEaCServicesPlugin,
-  IoCContainer,
   Runnable,
   RunnableLambda,
   START,
 } from '../../../../test.deps.ts';
-import { buildTestIoC, cleanupKv } from '../../../test-eac-setup.ts';
+import { buildTestIoC } from '../../../test-eac-setup.ts';
 
 // https://github.com/langchain-ai/langgraphjs/blob/main/examples/how-tos/branching.ipynb
 
@@ -191,7 +187,7 @@ Deno.test('Graph Branching Circuits', async (t) => {
                         .concat(["I'm E"]),
                       fanoutValues: [],
                     };
-                  }
+                  },
                 );
               },
             } as Partial<EaCNeuron>,
@@ -222,12 +218,12 @@ Deno.test('Graph Branching Circuits', async (t) => {
     },
   } as EverythingAsCodeSynaptic & EverythingAsCodeDatabases;
 
-  const ioc = await buildTestIoC(eac);
+  const { ioc, kvCleanup } = await buildTestIoC(eac);
 
   await t.step('Fan Out Fan In Circuit', async () => {
     const circuit = await ioc.Resolve<Runnable>(
       ioc.Symbol('Circuit'),
-      'fan-out-fan-in'
+      'fan-out-fan-in',
     );
 
     const chunk = await circuit.invoke({ aggregate: [] });
@@ -242,7 +238,7 @@ Deno.test('Graph Branching Circuits', async (t) => {
   await t.step('Conditional Circuit', async () => {
     const circuit = await ioc.Resolve<Runnable>(
       ioc.Symbol('Circuit'),
-      'conditional'
+      'conditional',
     );
 
     let chunk = await circuit.invoke({ aggregate: [], which: 'bc' });
@@ -267,7 +263,7 @@ Deno.test('Graph Branching Circuits', async (t) => {
   await t.step('Stable Sorting Circuit', async () => {
     const circuit = await ioc.Resolve<Runnable>(
       ioc.Symbol('Circuit'),
-      'stable-sorting'
+      'stable-sorting',
     );
 
     let chunk = await circuit.invoke({ aggregate: [], which: 'bc' });
@@ -288,4 +284,6 @@ Deno.test('Graph Branching Circuits', async (t) => {
     assertEquals(chunk.aggregate[2], `I'm D`);
     assertEquals(chunk.aggregate[3], `I'm E`);
   });
+
+  await kvCleanup();
 });

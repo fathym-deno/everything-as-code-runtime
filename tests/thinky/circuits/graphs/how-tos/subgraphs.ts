@@ -1,30 +1,17 @@
-import { AIMessageChunk } from 'npm:@langchain/core/messages';
-import { eacAIsRoot, eacDatabases } from '../../../../eacs.ts';
+// deno-lint-ignore-file no-explicit-any
 import {
-  AIMessage,
   assert,
   assertEquals,
-  assertFalse,
-  BaseMessage,
-  EaCAzureOpenAILLMDetails,
   EaCCircuitNeuron,
-  EaCDynamicToolDetails,
   EaCGraphCircuitDetails,
-  EaCLLMNeuron,
   EaCNeuron,
   EaCPassthroughNeuron,
-  EaCToolExecutorNeuron,
   END,
   EverythingAsCodeDatabases,
   EverythingAsCodeSynaptic,
-  FathymEaCServicesPlugin,
-  FathymSynapticEaCServicesPlugin,
-  HumanMessage,
-  IoCContainer,
   Runnable,
   RunnableLambda,
   START,
-  z,
 } from '../../../../test.deps.ts';
 import { buildTestIoC } from '../../../test-eac-setup.ts';
 
@@ -52,7 +39,7 @@ Deno.test('Graph Subgraphs Circuits', async (t) => {
             path: {
               value: (
                 left?: string[] | string,
-                right?: string[] | string
+                right?: string[] | string,
               ): string[] => {
                 if (!left) {
                   left = [];
@@ -71,22 +58,22 @@ Deno.test('Graph Subgraphs Circuits', async (t) => {
           },
           Neurons: {
             child_end: {
-              Bootstrap: (r) => {
-                return RunnableLambda.from(async () => {
+              Bootstrap: () => {
+                return RunnableLambda.from(() => {
                   return { path: ['child_end'] };
                 });
               },
             } as Partial<EaCNeuron>,
             child_middle: {
-              Bootstrap: (r) => {
-                return RunnableLambda.from(async () => {
+              Bootstrap: () => {
+                return RunnableLambda.from(() => {
                   return { path: ['child_middle'] };
                 });
               },
             } as Partial<EaCNeuron>,
             child_start: {
-              Bootstrap: (r) => {
-                return RunnableLambda.from(async () => {
+              Bootstrap: () => {
+                return RunnableLambda.from(() => {
                   return { path: ['child_start'] };
                 });
               },
@@ -112,7 +99,7 @@ Deno.test('Graph Subgraphs Circuits', async (t) => {
             path: {
               value: (
                 left?: string[] | string,
-                right?: string[] | string
+                right?: string[] | string,
               ): string[] => {
                 if (!left) {
                   left = [];
@@ -135,29 +122,29 @@ Deno.test('Graph Subgraphs Circuits', async (t) => {
               CircuitLookup: 'child',
             } as EaCCircuitNeuron,
             fin: {
-              Bootstrap: (r) => {
-                return RunnableLambda.from(async () => {
+              Bootstrap: () => {
+                return RunnableLambda.from(() => {
                   return { path: ['fin'] };
                 });
               },
             } as Partial<EaCNeuron>,
             grandparent: {
-              Bootstrap: (r) => {
-                return RunnableLambda.from(async () => {
+              Bootstrap: () => {
+                return RunnableLambda.from(() => {
                   return { path: ['grandparent'] };
                 });
               },
             } as Partial<EaCNeuron>,
             parent: {
-              Bootstrap: (r) => {
-                return RunnableLambda.from(async () => {
+              Bootstrap: () => {
+                return RunnableLambda.from(() => {
                   return { path: ['parent'] };
                 });
               },
             } as Partial<EaCNeuron>,
             sibling: {
-              Bootstrap: (r) => {
-                return RunnableLambda.from(async () => {
+              Bootstrap: () => {
+                return RunnableLambda.from(() => {
                   return { path: ['sibling'] };
                 });
               },
@@ -185,7 +172,7 @@ Deno.test('Graph Subgraphs Circuits', async (t) => {
             path: {
               value: (
                 left?: ValWithId[] | ValWithId,
-                right?: ValWithId[] | ValWithId
+                right?: ValWithId[] | ValWithId,
               ): any[] => {
                 /**
                  * Append the right-hand list, replacing any elements with the same id in the left-hand list.
@@ -213,7 +200,7 @@ Deno.test('Graph Subgraphs Circuits', async (t) => {
                 // Merge the two lists
                 const leftIdxById = left_.reduce(
                   (acc, val, i) => ({ ...acc, [val.id as string]: i }),
-                  {} as Record<string, number>
+                  {} as Record<string, number>,
                 );
                 const merged = [...left_];
                 for (const val of right_) {
@@ -231,22 +218,22 @@ Deno.test('Graph Subgraphs Circuits', async (t) => {
           },
           Neurons: {
             child_end: {
-              Bootstrap: (r) => {
-                return RunnableLambda.from(async () => {
+              Bootstrap: () => {
+                return RunnableLambda.from(() => {
                   return { path: [{ val: 'child_end' }] };
                 });
               },
             } as Partial<EaCNeuron>,
             child_middle: {
-              Bootstrap: (r) => {
-                return RunnableLambda.from(async () => {
+              Bootstrap: () => {
+                return RunnableLambda.from(() => {
                   return { path: [{ val: 'child_middle' }] };
                 });
               },
             } as Partial<EaCNeuron>,
             child_start: {
-              Bootstrap: (r) => {
-                return RunnableLambda.from(async () => {
+              Bootstrap: () => {
+                return RunnableLambda.from(() => {
                   return { path: [{ val: 'child_start' }] };
                 });
               },
@@ -272,7 +259,7 @@ Deno.test('Graph Subgraphs Circuits', async (t) => {
             path: {
               value: (
                 left?: ValWithId[] | ValWithId,
-                right?: ValWithId[] | ValWithId
+                right?: ValWithId[] | ValWithId,
               ): any[] => {
                 /**
                  * Append the right-hand list, replacing any elements with the same id in the left-hand list.
@@ -300,7 +287,7 @@ Deno.test('Graph Subgraphs Circuits', async (t) => {
                 // Merge the two lists
                 const leftIdxById = left_.reduce(
                   (acc, val, i) => ({ ...acc, [val.id as string]: i }),
-                  {} as Record<string, number>
+                  {} as Record<string, number>,
                 );
                 const merged = [...left_];
                 for (const val of right_) {
@@ -322,29 +309,29 @@ Deno.test('Graph Subgraphs Circuits', async (t) => {
               CircuitLookup: 'state-handoff-child',
             } as EaCCircuitNeuron,
             fin: {
-              Bootstrap: (r) => {
-                return RunnableLambda.from(async () => {
+              Bootstrap: () => {
+                return RunnableLambda.from(() => {
                   return { path: [{ val: 'fin' }] };
                 });
               },
             } as Partial<EaCNeuron>,
             grandparent: {
-              Bootstrap: (r) => {
-                return RunnableLambda.from(async () => {
+              Bootstrap: () => {
+                return RunnableLambda.from(() => {
                   return { path: [{ val: 'grandparent' }] };
                 });
               },
             } as Partial<EaCNeuron>,
             parent: {
-              Bootstrap: (r) => {
-                return RunnableLambda.from(async () => {
+              Bootstrap: () => {
+                return RunnableLambda.from(() => {
                   return { path: [{ val: 'parent' }] };
                 });
               },
             } as Partial<EaCNeuron>,
             sibling: {
-              Bootstrap: (r) => {
-                return RunnableLambda.from(async () => {
+              Bootstrap: () => {
+                return RunnableLambda.from(() => {
                   return { path: [{ val: 'sibling' }] };
                 });
               },
@@ -363,7 +350,7 @@ Deno.test('Graph Subgraphs Circuits', async (t) => {
     },
   } as EverythingAsCodeSynaptic & EverythingAsCodeDatabases;
 
-  const ioc = await buildTestIoC(eac);
+  const { ioc, kvCleanup } = await buildTestIoC(eac);
 
   await t.step('Parent + Child Circuit', async () => {
     const circuit = await ioc.Resolve<Runnable>(ioc.Symbol('Circuit'), 'main');
@@ -389,7 +376,7 @@ Deno.test('Graph Subgraphs Circuits', async (t) => {
   await t.step('State Handoff Circuit', async () => {
     const circuit = await ioc.Resolve<Runnable>(
       ioc.Symbol('Circuit'),
-      'state-handoff-main'
+      'state-handoff-main',
     );
 
     const chunk = await circuit.invoke({ name: 'test' });
@@ -407,4 +394,6 @@ Deno.test('Graph Subgraphs Circuits', async (t) => {
     assertEquals(chunk.path[5].val, 'sibling');
     assertEquals(chunk.path[6].val, 'fin');
   });
+
+  await kvCleanup();
 });

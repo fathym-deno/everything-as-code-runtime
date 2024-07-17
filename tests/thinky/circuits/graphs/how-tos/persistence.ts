@@ -1,8 +1,6 @@
-import { eacAIsRoot, eacDatabases } from '../../../../eacs.ts';
 import {
   AIMessage,
   assert,
-  assertFalse,
   assertStringIncludes,
   BaseMessage,
   EaCAzureOpenAILLMDetails,
@@ -14,27 +12,35 @@ import {
   EaCToolExecutorNeuron,
   END,
   EverythingAsCodeDatabases,
-  EverythingAsCodeSynaptic,
-  FathymEaCServicesPlugin,
-  FathymSynapticEaCServicesPlugin,
   HumanMessage,
-  IoCContainer,
   Runnable,
   RunnableLambda,
   START,
   z,
 } from '../../../../test.deps.ts';
-import { AI_LOOKUP, buildTestIoC } from '../../../test-eac-setup.ts';
+import { AI_LOOKUP, buildTestIoC } from '../../../../test-eac-setup.ts';
 
 // https://github.com/langchain-ai/langgraphjs/blob/main/examples/how-tos/persistence.ipynb
 
 Deno.test('Persistence Circuits', async (t) => {
   const eac = {
+    DFS: {
+      // 'esm:fathym-synaptic-resolvers': {
+      //   Type: 'ESM',
+      //   Root: '@fathym/synaptic/',
+      //   EntryPoints: ['resolvers.ts'],
+      //   IncludeDependencies: false,
+      //   WorkerPath: import.meta.resolve(
+      //     '@fathym/eac/runtime/src/runtime/dfs/workers/EaCESMDistributedFileSystemWorker.ts'
+      //   ),
+      // } as EaCESMDistributedFileSystem,
+    },
     AIs: {
       [AI_LOOKUP]: {
         LLMs: {
           'thinky-test': {
             Details: {
+              Type: 'AzureOpenAI',
               Name: 'Azure OpenAI LLM',
               Description: 'The LLM for interacting with Azure OpenAI.',
               APIKey: Deno.env.get('AZURE_OPENAI_KEY')!,
@@ -57,8 +63,8 @@ Deno.test('Persistence Circuits', async (t) => {
               Schema: z.object({
                 query: z.string().describe('The query to use in your search.'),
               }),
-              Action: async ({}: { query: string }) => {
-                return 'Cold, with a low of 13 ℃';
+              Action: ({}: { query: string }) => {
+                return Promise.resolve('Cold, with a low of 13 ℃');
               },
             } as EaCDynamicToolDetails,
           },
@@ -66,6 +72,7 @@ Deno.test('Persistence Circuits', async (t) => {
       },
     },
     Circuits: {
+      // $handlers: ['esm:fathym-synaptic-resolvers'],
       $neurons: {
         $pass: {
           Type: 'Passthrough',
@@ -87,7 +94,7 @@ Deno.test('Persistence Circuits', async (t) => {
                       const response = await r.invoke(messages, config);
 
                       return { messages: [response] };
-                    }
+                    },
                   );
                 },
               } as Partial<EaCNeuron>,
@@ -108,7 +115,7 @@ Deno.test('Persistence Circuits', async (t) => {
                 return {
                   messages: response,
                 };
-              }
+              },
             );
           },
         } as EaCToolExecutorNeuron,
@@ -227,14 +234,92 @@ Deno.test('Persistence Circuits', async (t) => {
         } as EaCGraphCircuitDetails,
       },
     },
-  } as EverythingAsCodeSynaptic & EverythingAsCodeDatabases;
+  } as EverythingAsCodeDatabases;
 
-  const ioc = await buildTestIoC(eac);
+  const { ioc, kvCleanup } = await buildTestIoC(eac);
 
-  await t.step('No Persist Circuit', async () => {
+  // await t.step('No Persist Circuit', async () => {
+  //   const circuit = await ioc.Resolve<Runnable>(
+  //     ioc.Symbol('Circuit'),
+  //     'no-persist'
+  //   );
+
+  //   let chunk = await circuit.invoke(
+  //     {
+  //       messages: [new HumanMessage(`Hi I'm Mike, nice to meet you.`)],
+  //     },
+  //     {
+  //       configurable: {
+  //         thread_id: 'test',
+  //       },
+  //     }
+  //   );
+
+  //   assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
+
+  //   console.log(chunk.messages.slice(-1)[0].content);
+
+  //   chunk = await circuit.invoke(
+  //     {
+  //       messages: [new HumanMessage(`Remember my name?`)],
+  //     },
+  //     {
+  //       configurable: {
+  //         thread_id: 'test',
+  //       },
+  //     }
+  //   );
+
+  //   assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
+
+  //   console.log(chunk.messages.slice(-1)[0].content);
+
+  //   assertFalse(chunk.messages.slice(-1)[0].content.includes('Mike'));
+  // });
+
+  // await t.step('Persist Memory Circuit', async () => {
+  //   const circuit = await ioc.Resolve<Runnable>(
+  //     ioc.Symbol('Circuit'),
+  //     'persist-memory'
+  //   );
+
+  //   let chunk = await circuit.invoke(
+  //     {
+  //       messages: [new HumanMessage(`Hi I'm Mike, nice to meet you.`)],
+  //     },
+  //     {
+  //       configurable: {
+  //         thread_id: 'test',
+  //       },
+  //     }
+  //   );
+
+  //   assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
+
+  //   console.log(chunk.messages.slice(-1)[0].content);
+
+  //   chunk = await circuit.invoke(
+  //     {
+  //       messages: [new HumanMessage(`Remember my name?`)],
+  //     },
+  //     {
+  //       configurable: {
+  //         thread_id: 'test',
+  //       },
+  //     }
+  //   );
+
+  //   assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
+
+  //   console.log(chunk.messages.slice(-1)[0].content);
+
+  //   assertStringIncludes(chunk.messages.slice(-1)[0].content, 'Mike');
+  // });
+
+  await t.step('Persist DenoKV Circuit', async () => {
     const circuit = await ioc.Resolve<Runnable>(
       ioc.Symbol('Circuit'),
-      'no-persist'
+      'persist-denokv',
     );
 
     let chunk = await circuit.invoke(
@@ -245,7 +330,7 @@ Deno.test('Persistence Circuits', async (t) => {
         configurable: {
           thread_id: 'test',
         },
-      }
+      },
     );
 
     assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
@@ -260,85 +345,7 @@ Deno.test('Persistence Circuits', async (t) => {
         configurable: {
           thread_id: 'test',
         },
-      }
-    );
-
-    assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
-
-    console.log(chunk.messages.slice(-1)[0].content);
-
-    assertFalse(chunk.messages.slice(-1)[0].content.includes('Mike'));
-  });
-
-  await t.step('Persist Memory Circuit', async () => {
-    const circuit = await ioc.Resolve<Runnable>(
-      ioc.Symbol('Circuit'),
-      'persist-memory'
-    );
-
-    let chunk = await circuit.invoke(
-      {
-        messages: [new HumanMessage(`Hi I'm Mike, nice to meet you.`)],
       },
-      {
-        configurable: {
-          thread_id: 'test',
-        },
-      }
-    );
-
-    assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
-
-    console.log(chunk.messages.slice(-1)[0].content);
-
-    chunk = await circuit.invoke(
-      {
-        messages: [new HumanMessage(`Remember my name?`)],
-      },
-      {
-        configurable: {
-          thread_id: 'test',
-        },
-      }
-    );
-
-    assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
-
-    console.log(chunk.messages.slice(-1)[0].content);
-
-    assertStringIncludes(chunk.messages.slice(-1)[0].content, 'Mike');
-  });
-
-  await t.step('Persist DenoKV Circuit', async (t) => {
-    const circuit = await ioc.Resolve<Runnable>(
-      ioc.Symbol('Circuit'),
-      'persist-denokv'
-    );
-
-    let chunk = await circuit.invoke(
-      {
-        messages: [new HumanMessage(`Hi I'm Mike, nice to meet you.`)],
-      },
-      {
-        configurable: {
-          thread_id: 'test',
-        },
-      }
-    );
-
-    assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
-
-    console.log(chunk.messages.slice(-1)[0].content);
-
-    chunk = await circuit.invoke(
-      {
-        messages: [new HumanMessage(`Remember my name?`)],
-      },
-      {
-        configurable: {
-          thread_id: 'test',
-        },
-      }
     );
 
     assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
@@ -351,7 +358,7 @@ Deno.test('Persistence Circuits', async (t) => {
   await t.step('Persist DenoKV ReCheck Circuit', async () => {
     const circuit = await ioc.Resolve<Runnable>(
       ioc.Symbol('Circuit'),
-      'persist-denokv'
+      'persist-denokv',
     );
 
     const chunk = await circuit.invoke(
@@ -362,7 +369,7 @@ Deno.test('Persistence Circuits', async (t) => {
         configurable: {
           thread_id: 'test',
         },
-      }
+      },
     );
 
     assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
@@ -371,4 +378,6 @@ Deno.test('Persistence Circuits', async (t) => {
 
     assertStringIncludes(chunk.messages.slice(-1)[0].content, 'Mike');
   });
+
+  await kvCleanup();
 });

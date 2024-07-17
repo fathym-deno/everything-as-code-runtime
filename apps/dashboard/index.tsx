@@ -1,4 +1,3 @@
-import { redirectRequest } from '@fathym/common';
 import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac/runtime';
 import { EaCWebState } from '../../src/state/EaCWebState.ts';
 
@@ -8,13 +7,13 @@ export type DashboardPageData = {
 
 export const handler: EaCRuntimeHandlerResult<EaCWebState, DashboardPageData> = {
   GET: (_req, ctx) => {
-    if (!ctx.State.EaC) {
-      return redirectRequest('/dashboard/enterprises', false, false);
-    } else if (!ctx.State.CloudLookup) {
-      return redirectRequest('/dashboard/clouds/azure', false, false);
-    } else if (!ctx.State.ResourceGroupLookup) {
-      return redirectRequest('/dashboard/clouds/calz', false, false);
-    }
+    // if (!ctx.State.EaC) {
+    //   return redirectRequest('/dashboard/enterprises', false, false);
+    // } else if (!ctx.State.CloudLookup) {
+    //   return redirectRequest('/dashboard/clouds/azure', false, false);
+    // } else if (!ctx.State.ResourceGroupLookup) {
+    //   return redirectRequest('/dashboard/clouds/calz', false, false);
+    // }
 
     const data: DashboardPageData = {};
 

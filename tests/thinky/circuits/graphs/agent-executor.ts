@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-explicit-any
 import {
   AIMessage,
   assert,
@@ -16,7 +17,6 @@ import {
   Runnable,
   RunnableLambda,
   START,
-  z,
 } from '../../../test.deps.ts';
 import { AI_LOOKUP, buildTestIoC } from '../../test-eac-setup.ts';
 
@@ -42,7 +42,7 @@ Deno.test('Graph Agent Executor Circuits', async (t) => {
                 return {
                   messages: response,
                 };
-              }
+              },
             );
           },
         } as EaCToolExecutorNeuron,
@@ -106,7 +106,7 @@ Deno.test('Graph Agent Executor Circuits', async (t) => {
     },
   } as EverythingAsCodeSynaptic & EverythingAsCodeDatabases;
 
-  const ioc = await buildTestIoC(eac);
+  const { ioc, kvCleanup } = await buildTestIoC(eac);
 
   await t.step('Agent Executor Circuit', async () => {
     const circuit = await ioc.Resolve<Runnable>(ioc.Symbol('Circuit'), 'agent');
@@ -119,7 +119,7 @@ Deno.test('Graph Agent Executor Circuits', async (t) => {
         configurable: {
           thread_id: 'test',
         },
-      }
+      },
     );
 
     assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
@@ -134,7 +134,7 @@ Deno.test('Graph Agent Executor Circuits', async (t) => {
         configurable: {
           thread_id: 'test',
         },
-      }
+      },
     );
 
     assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
@@ -151,7 +151,7 @@ Deno.test('Graph Agent Executor Circuits', async (t) => {
         configurable: {
           thread_id: 'test',
         },
-      }
+      },
     );
 
     assertFalse(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
@@ -168,4 +168,6 @@ Deno.test('Graph Agent Executor Circuits', async (t) => {
 
     console.log(chunk.messages.slice(-1)[0].content);
   });
+
+  await kvCleanup();
 });

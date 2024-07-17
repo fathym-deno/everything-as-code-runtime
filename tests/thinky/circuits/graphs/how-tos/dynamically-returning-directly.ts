@@ -1,10 +1,7 @@
-import { eacAIsRoot, eacDatabases } from '../../../../eacs.ts';
 import {
   AIMessage,
   assert,
   assertEquals,
-  assertStrictEquals,
-  assertStringIncludes,
   BaseMessage,
   EaCAzureOpenAILLMDetails,
   EaCDynamicToolDetails,
@@ -13,18 +10,13 @@ import {
   EaCNeuron,
   EaCPassthroughNeuron,
   EaCToolExecutorNeuron,
-  EaCToolNodeNeuron,
   END,
   EverythingAsCodeDatabases,
   EverythingAsCodeSynaptic,
-  FathymEaCServicesPlugin,
-  FathymSynapticEaCServicesPlugin,
   HumanMessage,
-  IoCContainer,
   Runnable,
   RunnableLambda,
   START,
-  ToolNode,
   z,
 } from '../../../../test.deps.ts';
 import { AI_LOOKUP, buildTestIoC } from '../../../test-eac-setup.ts';
@@ -41,6 +33,7 @@ Deno.test('Graph Dynamically Returning Directly Circuits', async (t) => {
         LLMs: {
           'thinky-test': {
             Details: {
+              Type: 'AzureOpenAI',
               Name: 'Azure OpenAI LLM',
               Description: 'The LLM for interacting with Azure OpenAI.',
               APIKey: Deno.env.get('AZURE_OPENAI_KEY')!,
@@ -64,12 +57,12 @@ Deno.test('Graph Dynamically Returning Directly Circuits', async (t) => {
                 return_direct: z
                   .boolean()
                   .describe(
-                    'Whether or not the result of this should be returned directly to the user without you seeing what it is'
+                    'Whether or not the result of this should be returned directly to the user without you seeing what it is',
                   )
                   .default(false),
               }),
-              Action: async ({}: { query: string }) => {
-                return itsSunnyText;
+              Action: ({}: { query: string }) => {
+                return Promise.resolve(itsSunnyText);
               },
             } as EaCDynamicToolDetails,
           },
@@ -97,7 +90,7 @@ Deno.test('Graph Dynamically Returning Directly Circuits', async (t) => {
                 return {
                   messages: response,
                 };
-              }
+              },
             );
           },
         } as EaCToolExecutorNeuron,
@@ -124,7 +117,7 @@ Deno.test('Graph Dynamically Returning Directly Circuits', async (t) => {
                       const response = await r.invoke(messages, config);
 
                       return { messages: [response] };
-                    }
+                    },
                   );
                 },
               } as Partial<EaCNeuron>,
@@ -152,7 +145,7 @@ Deno.test('Graph Dynamically Returning Directly Circuits', async (t) => {
                 } else {
                   const args = JSON.parse(
                     lastMessage.additional_kwargs.tool_calls[0].function
-                      .arguments
+                      .arguments,
                   );
 
                   return args?.return_direct ? 'final' : 'tools';
@@ -167,7 +160,7 @@ Deno.test('Graph Dynamically Returning Directly Circuits', async (t) => {
     },
   } as EverythingAsCodeSynaptic & EverythingAsCodeDatabases;
 
-  const ioc = await buildTestIoC(eac);
+  const { ioc, kvCleanup } = await buildTestIoC(eac);
 
   await t.step('Dynamically Returning Directly Circuit', async () => {
     const circuit = await ioc.Resolve<Runnable>(ioc.Symbol('Circuit'), 'drd');
@@ -183,7 +176,7 @@ Deno.test('Graph Dynamically Returning Directly Circuits', async (t) => {
     chunk = await circuit.invoke({
       messages: [
         new HumanMessage(
-          'what is the weather in sf? return this result directly by setting return_direct = True"'
+          'what is the weather in sf? return this result directly by setting return_direct = True"',
         ),
       ],
     });
@@ -194,4 +187,6 @@ Deno.test('Graph Dynamically Returning Directly Circuits', async (t) => {
 
     assertEquals(chunk.messages.slice(-1)[0].content, itsSunnyText);
   });
+
+  await kvCleanup();
 });

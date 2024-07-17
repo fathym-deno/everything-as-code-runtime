@@ -1,26 +1,59 @@
+import { getCookies, setCookie } from 'https://deno.land/std@0.220.1/http/cookie.ts';
+import { CSS } from 'https://deno.land/x/gfm@0.2.3/mod.ts';
 import { Action, ActionStyleTypes, Header, Logo } from '@fathym/atomic';
 import { merge } from '@fathym/common';
 import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac/runtime';
 import { EaCWebState } from '../../src/state/EaCWebState.ts';
-import Thinky from '../components/thinky/Thinky.tsx';
+import Thinky, { ChatSet } from '../components/thinky/Thinky.tsx';
 
-interface MainLayoutData {
+export type MainLayoutData = {
+  ActiveChat?: string;
+
+  Chats: Record<string, ChatSet>;
+
+  EaCJWT: string;
+
   Username?: string;
-}
+};
 
 export const handler: EaCRuntimeHandlerResult<EaCWebState, MainLayoutData> = {
-  GET: (_req, ctx) => {
+  GET: async (req, ctx) => {
+    const cookies = await getCookies(req.headers);
+
+    const sessionId = cookies['SessionID'] ?? crypto.randomUUID();
+
     const data: MainLayoutData = {
+      ActiveChat: sessionId,
+      Chats: {
+        [sessionId]: {
+          Name: 'User Public Chat',
+          CircuitLookup: 'thinky-public',
+        },
+      },
+      EaCJWT: ctx.State.EaCJWT!,
       Username: ctx.State.Username,
     };
 
     ctx.Data = merge(ctx.Data, data);
 
-    return ctx.Next();
+    const resp = await ctx.Next();
+
+    await setCookie(resp.headers, {
+      name: 'SessionID',
+      value: sessionId,
+    });
+
+    console.log(sessionId);
+
+    return resp;
   },
 };
 
-export default function Layout({ Component, Revision }: PageProps) {
+export default function Layout({
+  Data,
+  Component,
+  Revision,
+}: PageProps<MainLayoutData>) {
   return (
     <html>
       <head>
@@ -42,6 +75,8 @@ export default function Layout({ Component, Revision }: PageProps) {
           href={`/tailwind/styles.css?Revision=${Revision}`}
           data-eac-bypass-base
         />
+
+        <style dangerouslySetInnerHTML={{ __html: CSS }}></style>
       </head>
 
       <body class='bg-slate-50 dark:bg-slate-900 text-black dark:text-white font-nun'>
@@ -58,7 +93,13 @@ export default function Layout({ Component, Revision }: PageProps) {
             }
           />
 
-          <Thinky>
+          <Thinky
+            activeChat={Data.ActiveChat}
+            chats={Data.Chats}
+            hideChatHeader={true}
+            jwt={Data.EaCJWT}
+            root='/api/public-thinky/'
+          >
             <Component />
           </Thinky>
         </div>

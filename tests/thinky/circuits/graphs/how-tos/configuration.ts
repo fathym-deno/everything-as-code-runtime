@@ -1,7 +1,5 @@
-import { eacAIsRoot, eacDatabases } from '../../../../eacs.ts';
 import {
   assert,
-  assertEquals,
   assertStringIncludes,
   BaseMessage,
   BaseMessagePromptTemplateLike,
@@ -13,10 +11,7 @@ import {
   END,
   EverythingAsCodeDatabases,
   EverythingAsCodeSynaptic,
-  FathymEaCServicesPlugin,
-  FathymSynapticEaCServicesPlugin,
   HumanMessage,
-  IoCContainer,
   MessagesPlaceholder,
   Runnable,
   RunnableLambda,
@@ -77,8 +72,7 @@ Deno.test('Graph Configuration Circuits', async (t) => {
           Neurons: {
             agent: {
               Type: 'ChatPrompt',
-              SystemMessage:
-                'You are a helpful assistant.\n\n## User Info:\n{userInfo}',
+              SystemMessage: 'You are a helpful assistant.\n\n## User Info:\n{userInfo}',
               Messages: [
                 new MessagesPlaceholder('messages'),
               ] as BaseMessagePromptTemplateLike[],
@@ -89,7 +83,7 @@ Deno.test('Graph Configuration Circuits', async (t) => {
                 return RunnableLambda.from(
                   async (
                     state: { messages: BaseMessage[]; userInfo: string },
-                    config
+                    config,
                   ) => {
                     const { messages, userInfo } = state;
 
@@ -98,17 +92,17 @@ Deno.test('Graph Configuration Circuits', async (t) => {
                         messages,
                         userInfo,
                       },
-                      config
+                      config,
                     );
 
                     return { messages: [response] };
-                  }
+                  },
                 );
               },
             } as EaCChatPromptNeuron,
             'fetch-user-info': {
               Bootstrap: () => {
-                return RunnableLambda.from((_: {}, config) => {
+                return RunnableLambda.from((_, config) => {
                   const userId = config?.configurable?.user;
 
                   if (userId) {
@@ -136,12 +130,12 @@ Deno.test('Graph Configuration Circuits', async (t) => {
     },
   } as EverythingAsCodeSynaptic & EverythingAsCodeDatabases;
 
-  const ioc = await buildTestIoC(eac);
+  const { ioc, kvCleanup } = await buildTestIoC(eac);
 
   await t.step('Configuration Circuit', async () => {
     const circuit = await ioc.Resolve<Runnable>(
       ioc.Symbol('Circuit'),
-      'config'
+      'config',
     );
 
     let user = 'user1';
@@ -154,7 +148,7 @@ Deno.test('Graph Configuration Circuits', async (t) => {
         configurable: {
           user,
         },
-      }
+      },
     );
 
     assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
@@ -163,7 +157,7 @@ Deno.test('Graph Configuration Circuits', async (t) => {
 
     assertStringIncludes(
       chunk.messages.slice(-1)[0].content,
-      userDB[user as keyof typeof userDB].email
+      userDB[user as keyof typeof userDB].email,
     );
 
     user = 'user2';
@@ -176,7 +170,7 @@ Deno.test('Graph Configuration Circuits', async (t) => {
         configurable: {
           user,
         },
-      }
+      },
     );
 
     assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
@@ -185,7 +179,9 @@ Deno.test('Graph Configuration Circuits', async (t) => {
 
     assertStringIncludes(
       chunk.messages.slice(-1)[0].content,
-      userDB[user as keyof typeof userDB].email
+      userDB[user as keyof typeof userDB].email,
     );
   });
+
+  await kvCleanup();
 });

@@ -1,15 +1,125 @@
 import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac/runtime';
 import { EaCWebState } from '../../../../src/state/EaCWebState.ts';
 import { redirectRequest } from '@fathym/common';
-import { EaCStatusProcessingTypes, FathymEaC, loadEaCSvc, waitForStatus } from '@fathym/eac/api';
+import {
+  EaCStatusProcessingTypes,
+  FathymEaC,
+  loadEaCAzureSvc,
+  loadEaCSvc,
+  waitForStatus,
+} from '@fathym/eac/api';
 import { EaCCloudAzureDetails } from '@fathym/eac';
-import { EaCManageCloudForm } from '@fathym/atomic';
+import { ConnectAzure } from '@fathym/atomic';
 
-type AzurePageData = Record<string, unknown>;
+export type AzurePageData = {
+  billingScopes: Record<string, string>;
+
+  isAzureConnected: boolean;
+
+  subs: Record<string, string>;
+
+  tenants: Record<string, string>;
+};
 
 export const handler: EaCRuntimeHandlerResult<EaCWebState, AzurePageData> = {
-  GET(_req, ctx) {
-    const data: AzurePageData = {};
+  async GET(_req, ctx) {
+    const data: AzurePageData = {
+      billingScopes: {},
+      isAzureConnected: !!ctx.State.AzureAccessToken,
+      subs: {},
+      tenants: {},
+    };
+
+    const svcCalls: (() => Promise<void>)[] = [];
+
+    const eacAzureSvc = await loadEaCAzureSvc(ctx.State.EaCJWT!);
+
+    if (ctx.State.AzureAccessToken) {
+      const _provider = ctx.Runtime.EaC.Providers!['azure']!;
+
+      svcCalls.push(async () => {
+        const tenants = await eacAzureSvc.Tenants(
+          ctx.State.EaC!.EnterpriseLookup!,
+          ctx.State.AzureAccessToken!,
+        );
+
+        data.tenants = tenants.reduce((acc, tenant) => {
+          acc[tenant.tenantId!] = tenant.displayName!;
+
+          return acc;
+        }, {} as Record<string, string>);
+      });
+
+      svcCalls.push(async () => {
+        const subs = await eacAzureSvc.Subscriptions(
+          ctx.State.EaC!.EnterpriseLookup!,
+          ctx.State.AzureAccessToken!,
+        );
+
+        data.subs = subs.reduce((acc, sub) => {
+          acc[sub.subscriptionId!] = sub.displayName!;
+
+          return acc;
+        }, {} as Record<string, string>);
+      });
+
+      svcCalls.push(async () => {
+        const billingAccounts = await eacAzureSvc.BillingAccounts(
+          ctx.State.EaC!.EnterpriseLookup!,
+          ctx.State.AzureAccessToken!,
+        );
+
+        data.billingScopes = billingAccounts.reduce((acc, billingAccount) => {
+          const [id, displayName] = [
+            billingAccount.id!,
+            billingAccount.displayName,
+          ];
+
+          switch (billingAccount.agreementType!) {
+            case 'MicrosoftOnlineServicesProgram': {
+              acc[id] = `MOSP - ${displayName}`;
+              break;
+            }
+
+            case 'MicrosoftCustomerAgreement': {
+              const billingProfiles = billingAccount.billingProfiles?.value || [];
+
+              billingProfiles.forEach((billingProfile) => {
+                const invoiceSections = billingProfile.invoiceSections?.value || [];
+
+                invoiceSections.forEach((invoiceSection) => {
+                  acc[
+                    invoiceSection.id!
+                  ] =
+                    `MCA - ${displayName} - Profile - ${billingProfile.displayName} - Invoice - ${invoiceSection.displayName}`;
+                });
+              });
+              break;
+            }
+
+            case 'MicrosoftPartnerAgreement': {
+              // TODO(mcgear): Add support for Partner Agreement Flows
+              // https://learn.microsoft.com/en-us/azure/cost-management-billing/manage/programmatically-create-subscription-microsoft-partner-agreement?tabs=rest#find-customers-that-have-azure-plans
+              // acc[id] = displayName;
+              break;
+            }
+
+            case 'EnterpriseAgreement': {
+              const enrollmentAccounts = billingAccount.enrollmentAccounts || [];
+
+              enrollmentAccounts.forEach((account) => {
+                acc[
+                  account.id!
+                ] = `EA - ${displayName} - Enrollment - ${account.accountName}`;
+              });
+              break;
+            }
+          }
+
+          return acc;
+        }, {} as Record<string, string>);
+      });
+    }
 
     return ctx.Render(data);
   },
@@ -23,6 +133,7 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, AzurePageData> = {
       EnterpriseLookup: ctx.State.EaC!.EnterpriseLookup,
       Clouds: {
         [cloudLookup]: {
+          Token: ctx.State.AzureAccessToken,
           Details: {
             Name: formData.get('name') as string,
             Description: formData.get('description') as string,
@@ -64,6 +175,17 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, AzurePageData> = {
   },
 };
 
-export default function Azure({}: PageProps<AzurePageData>) {
-  return <EaCManageCloudForm action='' />;
+export default function Azure({ Data }: PageProps<AzurePageData>) {
+  return (
+    <ConnectAzure
+      cloudAction=''
+      oauthAction='/azure/oauth/signin'
+      subAction='/api/o-biotech/eac/clouds/subs'
+      class='px-4'
+      isConnected={Data.isAzureConnected}
+      billingScopes={Data.billingScopes}
+      subs={Data.subs}
+      tenants={Data.tenants}
+    />
+  );
 }

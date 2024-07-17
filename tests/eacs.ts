@@ -1,6 +1,5 @@
 import {
   AzureAISearchQueryType,
-  EaCSynapticAIAsCode,
   EaCAzureOpenAIEmbeddingsDetails,
   EaCAzureOpenAILLMDetails,
   EaCAzureSearchAIVectorStoreDetails,
@@ -35,6 +34,7 @@ export const eacAIsRoot = {
   Embeddings: {
     thinky: {
       Details: {
+        Type: 'AzureOpenAI',
         Name: 'Azure OpenAI LLM',
         Description: 'The LLM for interacting with Azure OpenAI.',
         APIKey: Deno.env.get('AZURE_OPENAI_KEY')!,
@@ -57,6 +57,7 @@ export const eacAIsRoot = {
   LLMs: {
     thinky: {
       Details: {
+        Type: 'AzureOpenAI',
         Name: 'Azure OpenAI LLM',
         Description: 'The LLM for interacting with Azure OpenAI.',
         APIKey: Deno.env.get('AZURE_OPENAI_KEY')!,
@@ -69,6 +70,7 @@ export const eacAIsRoot = {
     },
     'thinky-tooled': {
       Details: {
+        Type: 'AzureOpenAI',
         Name: 'Azure OpenAI LLM',
         Description: 'The LLM for interacting with Azure OpenAI.',
         APIKey: Deno.env.get('AZURE_OPENAI_KEY')!,
@@ -141,7 +143,7 @@ export const eacAIsRoot = {
       } as EaCAzureSearchAIVectorStoreDetails,
     },
   },
-} as EaCSynapticAIAsCode;
+};
 
 export const eacDatabases = {
   Details: {

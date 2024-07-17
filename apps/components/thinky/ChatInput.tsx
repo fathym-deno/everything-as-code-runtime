@@ -1,12 +1,15 @@
 // deno-lint-ignore-file no-explicit-any
 import { JSX } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { HumanMessage } from 'npm:@langchain/core/messages';
+import { Signal } from '@preact/signals';
+import { LoadingIcon } from '../../../build/iconset/icons/LoadingIcon.tsx';
 
 export const IsIsland = true;
 
 export type ChatInputProps = {
-  onSendMessage?: (msg: HumanMessage) => void;
+  onSendMessage?: (input: string) => void;
+
+  sending?: Signal<boolean>;
 } & JSX.HTMLAttributes<HTMLDivElement>;
 
 export default function ChatInput(props: ChatInputProps) {
@@ -15,9 +18,9 @@ export default function ChatInput(props: ChatInputProps) {
   const textareaRef = useRef(null);
 
   const sendMessage = () => {
-    if (input.trim() === '') return;
+    if (props.sending?.value || input.trim() === '') return;
 
-    props.onSendMessage?.(new HumanMessage(input));
+    props.onSendMessage?.(input);
 
     setInput('');
 
@@ -45,10 +48,10 @@ export default function ChatInput(props: ChatInputProps) {
     }
   };
 
-  useEffect(() => {
-    const chatBox = document.getElementById('chat-box')!;
-    chatBox.scrollTop = chatBox.scrollHeight;
-  }, []);
+  // useEffect(() => {
+  //   const chatBox = document.getElementById('chat-box')!;
+  //   chatBox.scrollTop = chatBox.scrollHeight;
+  // }, []);
 
   useEffect(() => {
     resizeTextarea(); // Resize on initial render
@@ -68,11 +71,17 @@ export default function ChatInput(props: ChatInputProps) {
         class='flex-grow p-2 border rounded-l-lg text-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white resize-none'
         placeholder='Type your message here...'
       />
+
       <button
         onClick={sendMessage}
         class='bg-blue-600 dark:bg-blue-800 text-white p-2 rounded-r-lg text-lg'
+        disabled={props.sending?.value}
       >
-        Send
+        {!props.sending?.value
+          ? (
+            'Send'
+          )
+          : <LoadingIcon class='w-6 h-6 animate-spin' />}
       </button>
     </div>
   );

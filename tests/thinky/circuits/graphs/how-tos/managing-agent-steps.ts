@@ -1,10 +1,7 @@
 import { ToolMessage } from 'npm:@langchain/core/messages';
-import { eacAIsRoot, eacDatabases } from '../../../../eacs.ts';
 import {
   AIMessage,
   assert,
-  assertFalse,
-  assertStringIncludes,
   BaseMessage,
   EaCAzureOpenAILLMDetails,
   EaCDynamicToolDetails,
@@ -16,10 +13,7 @@ import {
   END,
   EverythingAsCodeDatabases,
   EverythingAsCodeSynaptic,
-  FathymEaCServicesPlugin,
-  FathymSynapticEaCServicesPlugin,
   HumanMessage,
-  IoCContainer,
   Runnable,
   RunnableLambda,
   START,
@@ -36,6 +30,7 @@ Deno.test('Graph Managing Agent Steps Circuits', async (t) => {
         LLMs: {
           'thinky-test': {
             Details: {
+              Type: 'AzureOpenAI',
               Name: 'Azure OpenAI LLM',
               Description: 'The LLM for interacting with Azure OpenAI.',
               APIKey: Deno.env.get('AZURE_OPENAI_KEY')!,
@@ -57,8 +52,10 @@ Deno.test('Graph Managing Agent Steps Circuits', async (t) => {
               Schema: z.object({
                 query: z.string().describe('The query to use in your search.'),
               }),
-              Action: async ({}: { query: string }) => {
-                return 'Try again in a few seconds! Checking with the weathermen... Call me again next.';
+              Action: ({}: { query: string }) => {
+                return Promise.resolve(
+                  'Try again in a few seconds! Checking with the weathermen... Call me again next.',
+                );
               },
             } as EaCDynamicToolDetails,
           },
@@ -88,7 +85,7 @@ Deno.test('Graph Managing Agent Steps Circuits', async (t) => {
                 return {
                   messages: response,
                 };
-              }
+              },
             );
           },
         } as EaCToolExecutorNeuron,
@@ -119,7 +116,7 @@ Deno.test('Graph Managing Agent Steps Circuits', async (t) => {
                         if (modelMessages.length >= 5) {
                           if (
                             !ToolMessage.isInstance(
-                              modelMessages[modelMessages.length - 1]
+                              modelMessages[modelMessages.length - 1],
                             )
                           ) {
                             break;
@@ -132,7 +129,7 @@ Deno.test('Graph Managing Agent Steps Circuits', async (t) => {
                       const response = await r.invoke(modelMessages, config);
 
                       return { messages: [response] };
-                    }
+                    },
                   );
                 },
               } as Partial<EaCNeuron>,
@@ -165,7 +162,7 @@ Deno.test('Graph Managing Agent Steps Circuits', async (t) => {
     },
   } as EverythingAsCodeSynaptic & EverythingAsCodeDatabases;
 
-  const ioc = await buildTestIoC(eac);
+  const { ioc, kvCleanup } = await buildTestIoC(eac);
 
   await t.step('Managing Agent Steps Circuit', async () => {
     const circuit = await ioc.Resolve<Runnable>(ioc.Symbol('Circuit'), 'mas');
@@ -174,7 +171,7 @@ Deno.test('Graph Managing Agent Steps Circuits', async (t) => {
       {
         messages: [
           new HumanMessage(
-            `what is the weather in sf? Don't give up! Keep using your tools.`
+            `what is the weather in sf? Don't give up! Keep using your tools.`,
           ),
         ],
       },
@@ -182,11 +179,13 @@ Deno.test('Graph Managing Agent Steps Circuits', async (t) => {
         configurable: {
           thread_id: 'test',
         },
-      }
+      },
     );
 
     assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
 
     console.log(chunk.messages.slice(-1)[0].content);
   });
+
+  await kvCleanup();
 });

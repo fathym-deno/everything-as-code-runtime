@@ -26,7 +26,6 @@ import {
   RunnableLambda,
   START,
 } from '../../test.deps.ts';
-import process from 'node:process';
 import { AI_LOOKUP, buildTestIoC } from '../test-eac-setup.ts';
 
 Deno.test('Circuits', async (t) => {
@@ -45,6 +44,7 @@ Deno.test('Circuits', async (t) => {
         LLMs: {
           'thinky-llm-circuits': {
             Details: {
+              Type: 'AzureOpenAI',
               Name: 'Azure OpenAI LLM',
               Description: 'The LLM for interacting with Azure OpenAI.',
               APIKey: Deno.env.get('AZURE_OPENAI_KEY')!,
@@ -124,7 +124,7 @@ Deno.test('Circuits', async (t) => {
                 return {
                   messages: response,
                 };
-              }
+              },
             );
           },
         } as EaCToolExecutorNeuron,
@@ -268,7 +268,8 @@ Deno.test('Circuits', async (t) => {
               Neurons: {
                 '': {
                   Type: 'ChatPrompt',
-                  SystemMessage: `You are here to summarize the users JSON formatted web results, you will need to answer their original input:
+                  SystemMessage:
+                    `You are here to summarize the users JSON formatted web results, you will need to answer their original input:
 
 {input}`,
                   NewMessages: [
@@ -325,7 +326,7 @@ Deno.test('Circuits', async (t) => {
                     return {
                       messages: [response],
                     };
-                  }
+                  },
                 );
               },
               // Synapses: {
@@ -353,7 +354,7 @@ Deno.test('Circuits', async (t) => {
                     return {
                       messages: response,
                     };
-                  }
+                  },
                 );
               },
             } as EaCToolExecutorNeuron,
@@ -445,7 +446,8 @@ Deno.test('Circuits', async (t) => {
               Neurons: {
                 '': {
                   Type: 'ChatPrompt',
-                  SystemMessage: `You are here to summarize the users JSON formatted web results, you will need to answer their original input:
+                  SystemMessage:
+                    `You are here to summarize the users JSON formatted web results, you will need to answer their original input:
 
 {input}`,
                   NewMessages: [
@@ -498,7 +500,7 @@ Deno.test('Circuits', async (t) => {
                       console.log(response.additional_kwargs.tool_calls);
 
                       return { messages: [response] };
-                    }
+                    },
                   );
                 },
               } as Partial<EaCNeuron>,
@@ -525,278 +527,282 @@ Deno.test('Circuits', async (t) => {
     // },
   } as EverythingAsCodeSynaptic & EverythingAsCodeDatabases;
 
-  const ioc = await buildTestIoC(eac);
+  const { ioc, kvCleanup } = await buildTestIoC(eac);
 
   const sessionId = 'test';
 
-  // await t.step('Basic Prompt Circuit', async () => {
-  //   const circuit = await ioc.Resolve<Runnable>(
-  //     ioc.Symbol('Circuit'),
-  //     'basic-prompt'
-  //   );
+  await t.step('Basic Prompt Circuit', async () => {
+    const circuit = await ioc.Resolve<Runnable>(
+      ioc.Symbol('Circuit'),
+      'basic-prompt',
+    );
 
-  //   const chunk = await circuit.invoke({
-  //     input: 'green',
-  //   });
+    const chunk = await circuit.invoke({
+      input: 'green',
+    });
 
-  //   assert(chunk.content, JSON.stringify(chunk));
+    assert(chunk.content, JSON.stringify(chunk));
 
-  //   console.log(chunk.content);
-  // });
+    console.log(chunk.content);
+  });
 
-  // await t.step('Basic Chat Circuit', async () => {
-  //   const circuit = await ioc.Resolve<Runnable>(
-  //     ioc.Symbol('Circuit'),
-  //     'basic-chat'
-  //   );
+  await t.step('Basic Chat Circuit', async () => {
+    const circuit = await ioc.Resolve<Runnable>(
+      ioc.Symbol('Circuit'),
+      'basic-chat',
+    );
 
-  //   const chunk = await circuit.invoke({
-  //     input: 'What is a good color to use to make someone feel happy?',
-  //   });
+    const chunk = await circuit.invoke({
+      input: 'What is a good color to use to make someone feel happy?',
+    });
 
-  //   assert(chunk.content, JSON.stringify(chunk));
+    assert(chunk.content, JSON.stringify(chunk));
 
-  //   console.log(chunk.content);
-  // });
+    console.log(chunk.content);
+  });
 
-  // await t.step('Basic Chat with History Circuit', async () => {
-  //   const circuit = await ioc.Resolve<Runnable>(
-  //     ioc.Symbol('Circuit'),
-  //     'basic-chat-w-history'
-  //   );
+  await t.step('Basic Chat with History Circuit', async () => {
+    const circuit = await ioc.Resolve<Runnable>(
+      ioc.Symbol('Circuit'),
+      'basic-chat-w-history',
+    );
 
-  //   const chunk = await circuit.invoke(
-  //     {
-  //       question: 'What is a good color to use to make someone feel confused?',
-  //     },
-  //     { configurable: { sessionId } }
-  //   );
+    const chunk = await circuit.invoke(
+      {
+        question: 'What is a good color to use to make someone feel confused?',
+      },
+      { configurable: { sessionId } },
+    );
 
-  //   assert(chunk.content, JSON.stringify(chunk));
+    console.log(chunk);
 
-  //   console.log(chunk.content);
-  // });
+    assert(chunk.content, JSON.stringify(chunk));
 
-  // await t.step('Tool Chat Circuit', async () => {
-  //   const circuit = await ioc.Resolve<Runnable>(
-  //     ioc.Symbol('Circuit'),
-  //     'tool-chat'
-  //   );
+    console.log(chunk.content);
+  });
 
-  //   const chunk = await circuit.invoke(
-  //     'Who won the basketball game last night, celtics vs mavs? Provide me a summary that highlights the positive takeaways for the Mavs.',
-  //     {
-  //       configurable: { sessionId },
-  //     }
-  //   );
+  await t.step('Tool Chat Circuit', async () => {
+    const circuit = await ioc.Resolve<Runnable>(
+      ioc.Symbol('Circuit'),
+      'tool-chat',
+    );
 
-  //   assert(chunk.content, JSON.stringify(chunk));
+    const chunk = await circuit.invoke(
+      'Who won the basketball game last night, celtics vs mavs? Provide me a summary that highlights the positive takeaways for the Mavs.',
+      {
+        configurable: { sessionId },
+      },
+    );
 
-  //   console.log(chunk.content);
-  // });
+    assert(chunk.content, JSON.stringify(chunk));
 
-  // await t.step('RAG Chat with History Circuit', async () => {
-  //   const circuit = await ioc.Resolve<Runnable>(
-  //     ioc.Symbol('Circuit'),
-  //     'rag-chat-w-history'
-  //   );
+    console.log(chunk.content);
+  });
 
-  //   const chunk = await circuit.invoke(
-  //     {
-  //       question: 'What is a good color to use to make someone feel confused?',
-  //     },
-  //     { configurable: { sessionId } }
-  //   );
+  await t.step('RAG Chat with History Circuit', async () => {
+    const circuit = await ioc.Resolve<Runnable>(
+      ioc.Symbol('Circuit'),
+      'rag-chat-w-history',
+    );
 
-  //   assert(chunk.content, JSON.stringify(chunk));
+    const chunk = await circuit.invoke(
+      {
+        question: 'What is a good color to use to make someone feel confused?',
+      },
+      { configurable: { sessionId } },
+    );
 
-  //   console.log(chunk.content);
-  // });
+    assert(chunk.content, JSON.stringify(chunk));
 
-  // await t.step('Graph Chat Model Circuit', async () => {
-  //   const circuit = await ioc.Resolve<Runnable>(
-  //     ioc.Symbol('Circuit'),
-  //     'graph-chat-model'
-  //   );
+    console.log(chunk.content);
+  });
 
-  //   const chunk = await circuit.invoke(
-  //     new HumanMessage('Tell me about Circuits in 50 words or less...')
-  //   );
+  await t.step('Graph Chat Model Circuit', async () => {
+    const circuit = await ioc.Resolve<Runnable>(
+      ioc.Symbol('Circuit'),
+      'graph-chat-model',
+    );
 
-  //   assert(chunk.slice(-1)[0].content, JSON.stringify(chunk));
+    const chunk = await circuit.invoke(
+      new HumanMessage('Tell me about Circuits in 50 words or less...'),
+    );
 
-  //   console.log(chunk.slice(-1)[0].content);
-  // });
+    assert(chunk.slice(-1)[0].content, JSON.stringify(chunk));
 
-  // await t.step('Graph Chat Basic Circuit', async () => {
-  //   // const tool = await ioc.Resolve<StructuredTool>(
-  //   //   ioc.Symbol('Tool'),
-  //   //   'thinky|tavily'
-  //   // );
+    console.log(chunk.slice(-1)[0].content);
+  });
 
-  //   // const llm = await ioc.Resolve<BaseLanguageModel>(
-  //   //   ioc.Symbol(BaseLanguageModel.name),
-  //   //   'thinky|thinky-tooled'
-  //   // );
+  await t.step('Graph Chat Basic Circuit', async () => {
+    // const tool = await ioc.Resolve<StructuredTool>(
+    //   ioc.Symbol('Tool'),
+    //   'thinky|tavily'
+    // );
 
-  //   // const toolExecutor = new ToolExecutor({ tools: [tool] });
+    // const llm = await ioc.Resolve<BaseLanguageModel>(
+    //   ioc.Symbol(BaseLanguageModel.name),
+    //   'thinky|thinky-tooled'
+    // );
 
-  //   // const shouldContinue = (state: { messages: Array<BaseMessage> }) => {
-  //   //   const { messages } = state;
-  //   //   const lastMessage = messages[messages.length - 1];
-  //   //   // If there is no function call, then we finish
-  //   //   if (
-  //   //     !('function_call' in lastMessage.additional_kwargs) ||
-  //   //     !lastMessage.additional_kwargs.function_call
-  //   //   ) {
-  //   //     return 'end';
-  //   //   }
-  //   //   // Otherwise if there is, we continue
-  //   //   return 'continue';
-  //   // };
+    // const toolExecutor = new ToolExecutor({ tools: [tool] });
 
-  //   // // Define the function to execute tools
-  //   // const _getAction = (state: {
-  //   //   messages: Array<BaseMessage>;
-  //   // }): AgentAction => {
-  //   //   const { messages } = state;
-  //   //   // Based on the continue condition
-  //   //   // we know the last message involves a function call
-  //   //   const lastMessage = messages[messages.length - 1];
-  //   //   if (!lastMessage) {
-  //   //     throw new Error('No messages found.');
-  //   //   }
-  //   //   if (!lastMessage.additional_kwargs.function_call) {
-  //   //     throw new Error('No function call found in message.');
-  //   //   }
-  //   //   // We construct an AgentAction from the function_call
-  //   //   return {
-  //   //     tool: lastMessage.additional_kwargs.function_call.name,
-  //   //     toolInput: JSON.parse(
-  //   //       lastMessage.additional_kwargs.function_call.arguments
-  //   //     ),
-  //   //     log: '',
-  //   //   };
-  //   // };
+    // const shouldContinue = (state: { messages: Array<BaseMessage> }) => {
+    //   const { messages } = state;
+    //   const lastMessage = messages[messages.length - 1];
+    //   // If there is no function call, then we finish
+    //   if (
+    //     !('function_call' in lastMessage.additional_kwargs) ||
+    //     !lastMessage.additional_kwargs.function_call
+    //   ) {
+    //     return 'end';
+    //   }
+    //   // Otherwise if there is, we continue
+    //   return 'continue';
+    // };
 
-  //   // // Define the function that calls the model
-  //   // const callModel = async (state: { messages: Array<BaseMessage> }) => {
-  //   //   const { messages } = state;
-  //   //   // You can use a prompt here to tweak model behavior.
-  //   //   // You can also just pass messages to the model directly.
-  //   //   const prompt = ChatPromptTemplate.fromMessages([
-  //   //     ['system', 'You are a helpful assistant.'],
-  //   //     new MessagesPlaceholder('messages'),
-  //   //   ]);
-  //   //   const response = await prompt.pipe(llm).invoke({ messages });
-  //   //   // We return a list, because this will get added to the existing list
-  //   //   return {
-  //   //     messages: [response],
-  //   //   };
-  //   // };
+    // // Define the function to execute tools
+    // const _getAction = (state: {
+    //   messages: Array<BaseMessage>;
+    // }): AgentAction => {
+    //   const { messages } = state;
+    //   // Based on the continue condition
+    //   // we know the last message involves a function call
+    //   const lastMessage = messages[messages.length - 1];
+    //   if (!lastMessage) {
+    //     throw new Error('No messages found.');
+    //   }
+    //   if (!lastMessage.additional_kwargs.function_call) {
+    //     throw new Error('No function call found in message.');
+    //   }
+    //   // We construct an AgentAction from the function_call
+    //   return {
+    //     tool: lastMessage.additional_kwargs.function_call.name,
+    //     toolInput: JSON.parse(
+    //       lastMessage.additional_kwargs.function_call.arguments
+    //     ),
+    //     log: '',
+    //   };
+    // };
 
-  //   // const callTool = async (state: { messages: Array<BaseMessage> }) => {
-  //   //   const action = _getAction(state);
-  //   //   // We call the tool_executor and get back a response
-  //   //   const response = await toolExecutor.invoke(action);
-  //   //   // We use the response to create a FunctionMessage
-  //   //   const functionMessage = new FunctionMessage({
-  //   //     content: response,
-  //   //     name: action.tool,
-  //   //   });
-  //   //   // We return a list, because this will get added to the existing list
-  //   //   return { messages: [functionMessage] };
-  //   // };
+    // // Define the function that calls the model
+    // const callModel = async (state: { messages: Array<BaseMessage> }) => {
+    //   const { messages } = state;
+    //   // You can use a prompt here to tweak model behavior.
+    //   // You can also just pass messages to the model directly.
+    //   const prompt = ChatPromptTemplate.fromMessages([
+    //     ['system', 'You are a helpful assistant.'],
+    //     new MessagesPlaceholder('messages'),
+    //   ]);
+    //   const response = await prompt.pipe(llm).invoke({ messages });
+    //   // We return a list, because this will get added to the existing list
+    //   return {
+    //     messages: [response],
+    //   };
+    // };
 
-  //   // const workflow = new StateGraph<{ messages: Array<BaseMessage> }>({
-  //   //   channels: {
-  //   //     messages: {
-  //   //       value: (x: BaseMessage[], y: BaseMessage[]) => x.concat(y),
-  //   //       default: () => [],
-  //   //     },
-  //   //   },
-  //   // })
-  //   //   .addNode('agent', callModel)
-  //   //   .addNode('action', callTool);
+    // const callTool = async (state: { messages: Array<BaseMessage> }) => {
+    //   const action = _getAction(state);
+    //   // We call the tool_executor and get back a response
+    //   const response = await toolExecutor.invoke(action);
+    //   // We use the response to create a FunctionMessage
+    //   const functionMessage = new FunctionMessage({
+    //     content: response,
+    //     name: action.tool,
+    //   });
+    //   // We return a list, because this will get added to the existing list
+    //   return { messages: [functionMessage] };
+    // };
 
-  //   // // Set the entrypoint as `agent`
-  //   // // This means that this node is the first one called
-  //   // workflow.setEntryPoint('agent');
+    // const workflow = new StateGraph<{ messages: Array<BaseMessage> }>({
+    //   channels: {
+    //     messages: {
+    //       value: (x: BaseMessage[], y: BaseMessage[]) => x.concat(y),
+    //       default: () => [],
+    //     },
+    //   },
+    // })
+    //   .addNode('agent', callModel)
+    //   .addNode('action', callTool);
 
-  //   // // We now add a conditional edge
-  //   // workflow.addConditionalEdges(
-  //   //   // First, we define the start node. We use `agent`.
-  //   //   // This means these are the edges taken after the `agent` node is called.
-  //   //   'agent',
-  //   //   // Next, we pass in the function that will determine which node is called next.
-  //   //   shouldContinue,
-  //   //   // Finally we pass in a mapping.
-  //   //   // The keys are strings, and the values are other nodes.
-  //   //   // END is a special node marking that the graph should finish.
-  //   //   // What will happen is we will call `should_continue`, and then the output of that
-  //   //   // will be matched against the keys in this mapping.
-  //   //   // Based on which one it matches, that node will then be called.
-  //   //   {
-  //   //     // If `tools`, then we call the tool node.
-  //   //     continue: 'action',
-  //   //     // Otherwise we finish.
-  //   //     end: END,
-  //   //   }
-  //   // );
+    // // Set the entrypoint as `agent`
+    // // This means that this node is the first one called
+    // workflow.setEntryPoint('agent');
 
-  //   // // We now add a normal edge from `tools` to `agent`.
-  //   // // This means that after `tools` is called, `agent` node is called next.
-  //   // workflow.addEdge('action', 'agent');
+    // // We now add a conditional edge
+    // workflow.addConditionalEdges(
+    //   // First, we define the start node. We use `agent`.
+    //   // This means these are the edges taken after the `agent` node is called.
+    //   'agent',
+    //   // Next, we pass in the function that will determine which node is called next.
+    //   shouldContinue,
+    //   // Finally we pass in a mapping.
+    //   // The keys are strings, and the values are other nodes.
+    //   // END is a special node marking that the graph should finish.
+    //   // What will happen is we will call `should_continue`, and then the output of that
+    //   // will be matched against the keys in this mapping.
+    //   // Based on which one it matches, that node will then be called.
+    //   {
+    //     // If `tools`, then we call the tool node.
+    //     continue: 'action',
+    //     // Otherwise we finish.
+    //     end: END,
+    //   }
+    // );
 
-  //   // // Finally, we compile it!
-  //   // // This compiles it into a LangChain Runnable,
-  //   // // meaning you can use it as you would any other runnable
-  //   // const app = workflow.compile();
+    // // We now add a normal edge from `tools` to `agent`.
+    // // This means that after `tools` is called, `agent` node is called next.
+    // workflow.addEdge('action', 'agent');
 
-  //   // const inputs = {
-  //   //   messages: [new HumanMessage('what is the weather in sf')],
-  //   // };
+    // // Finally, we compile it!
+    // // This compiles it into a LangChain Runnable,
+    // // meaning you can use it as you would any other runnable
+    // const app = workflow.compile();
 
-  //   // const chunk = await app.invoke(inputs);
+    // const inputs = {
+    //   messages: [new HumanMessage('what is the weather in sf')],
+    // };
 
-  //   const circuit = await ioc.Resolve<Runnable>(
-  //     ioc.Symbol('Circuit'),
-  //     'graph-chat-basic'
-  //   );
+    // const chunk = await app.invoke(inputs);
 
-  //   const chunk = await circuit.invoke({
-  //     messages: [
-  //       new HumanMessage(
-  //         'Who won game one of the finals between celtics and mavs?'
-  //       ),
-  //     ],
-  //   });
+    const circuit = await ioc.Resolve<Runnable>(
+      ioc.Symbol('Circuit'),
+      'graph-chat-basic',
+    );
 
-  //   // assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
+    const chunk = await circuit.invoke({
+      messages: [
+        new HumanMessage(
+          'Who won game one of the finals between celtics and mavs?',
+        ),
+      ],
+    });
 
-  //   console.log(chunk);
-  //   // console.log(chunk.messages.slice(-1)[0].content);
-  // });
+    // assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
+
+    console.log(chunk);
+    // console.log(chunk.messages.slice(-1)[0].content);
+  });
 
   await t.step('Circuit Tools Circuit', async () => {
     const circuit = await ioc.Resolve<Runnable>(
       ioc.Symbol('Circuit'),
-      'circuit-tools'
+      'circuit-tools',
     );
 
     const chunk = await circuit.invoke(
       {
         messages: [
           new HumanMessage(
-            'What is the NBA finals series at between celtics and mavs?'
+            'What is the NBA finals series at between celtics and mavs?',
           ),
         ],
       },
-      { configurable: { sessionId } }
+      { configurable: { sessionId } },
     );
 
     assert(chunk.messages.slice(-1)[0].content, JSON.stringify(chunk));
 
     console.log(chunk.messages.slice(-1)[0].content);
   });
+
+  await kvCleanup();
 });

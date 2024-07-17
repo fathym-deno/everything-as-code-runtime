@@ -1,9 +1,11 @@
 import { FathymEaC, loadEaCSvc } from '@fathym/eac/api';
+import { createAzureADOAuthConfig, createOAuthHelpers } from '@fathym/common/oauth';
 import { EaCRuntimeContext, EaCRuntimeHandler } from '@fathym/eac/runtime';
 import { EaCWebState } from '../../src/state/EaCWebState.ts';
+import { EaCAzureADProviderDetails } from '@fathym/eac';
 
 export default [
-  async (_req, ctx: EaCRuntimeContext<EaCWebState>) => {
+  async (req, ctx: EaCRuntimeContext<EaCWebState>) => {
     const denoKv = await ctx.Runtime.IoC.Resolve(Deno.Kv, 'eac');
 
     const currentEntLookup = await denoKv.get<string>([
@@ -130,7 +132,41 @@ export default [
       );
 
       ctx.State.EaCJWT = jwt.Token;
-      console.log(ctx.State.EaCJWT);
+    }
+
+    if (ctx.State.Username) {
+      const providerLookup = 'azure';
+
+      const provider = ctx.Runtime.EaC!.Providers![providerLookup]!;
+
+      const providerDetails = provider.Details as EaCAzureADProviderDetails;
+
+      const oAuthConfig = createAzureADOAuthConfig(
+        providerDetails!.ClientID,
+        providerDetails!.ClientSecret,
+        providerDetails!.TenantID,
+        providerDetails!.Scopes,
+      );
+
+      const helpers = createOAuthHelpers(oAuthConfig);
+
+      const sessionId = await helpers.getSessionId(req);
+
+      const oauthKv = await ctx.Runtime.IoC.Resolve<Deno.Kv>(
+        Deno.Kv,
+        provider.DatabaseLookup,
+      );
+
+      const currentAccTok = await oauthKv.get<string>([
+        'MSAL',
+        'Session',
+        sessionId!,
+        'AccessToken',
+      ]);
+
+      if (currentAccTok.value) {
+        ctx.State.AzureAccessToken = currentAccTok.value;
+      }
     }
 
     const resp = ctx.Next();

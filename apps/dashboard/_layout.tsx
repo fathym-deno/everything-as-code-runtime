@@ -1,17 +1,40 @@
+import { CSS } from 'https://deno.land/x/gfm@0.2.3/mod.ts';
 import { Action, ActionStyleTypes, Header, Logo } from '@fathym/atomic';
 import { merge } from '@fathym/common';
 import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac/runtime';
 import { EaCWebState } from '../../src/state/EaCWebState.ts';
-import Thinky from '../components/thinky/Thinky.tsx';
+import Thinky, { ChatSet } from '../components/thinky/Thinky.tsx';
 
-interface MainLayoutData {
-  Username?: string;
-}
+export type MainLayoutData = {
+  ActiveChat?: string;
+
+  Chats: Record<string, ChatSet>;
+
+  EaCJWT: string;
+
+  Root: string;
+
+  Username: string;
+};
 
 export const handler: EaCRuntimeHandlerResult<EaCWebState, MainLayoutData> = {
   GET: (_req, ctx) => {
     const data: MainLayoutData = {
-      Username: ctx.State.Username,
+      ActiveChat: ctx.State.EaC!.EnterpriseLookup!,
+      Chats: {
+        // [ctx.State.Username!]: {
+        //   Name: 'User Main Chat',
+        //   CircuitLookup: 'thinky-dashboard',
+        // },
+        [ctx.State.EaC!.EnterpriseLookup!]: {
+          Name: 'Enterprise Chat',
+          CircuitLookup: 'thinky-dashboard',
+        },
+      },
+      EaCJWT: ctx.State.EaCJWT!,
+      // GroupChats: ,
+      Root: '/api/thinky/',
+      Username: ctx.State.Username!,
     };
 
     ctx.Data = merge(ctx.Data, data);
@@ -20,7 +43,11 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, MainLayoutData> = {
   },
 };
 
-export default function Layout({ Component, Revision }: PageProps) {
+export default function Layout({
+  Data,
+  Component,
+  Revision,
+}: PageProps<MainLayoutData>) {
   return (
     <html>
       <head>
@@ -42,6 +69,8 @@ export default function Layout({ Component, Revision }: PageProps) {
           href={`/tailwind/styles.css?Revision=${Revision}`}
           data-eac-bypass-base
         />
+
+        <style dangerouslySetInnerHTML={{ __html: CSS }}></style>
       </head>
 
       <body class='bg-slate-50 dark:bg-slate-900 text-black dark:text-white font-nun'>
@@ -58,7 +87,12 @@ export default function Layout({ Component, Revision }: PageProps) {
             }
           />
 
-          <Thinky>
+          <Thinky
+            activeChat={Data.ActiveChat}
+            chats={Data.Chats}
+            jwt={Data.EaCJWT}
+            root={Data.Root}
+          >
             <Component />
           </Thinky>
         </div>
