@@ -1,10 +1,9 @@
 import { getCookies, setCookie } from 'https://deno.land/std@0.220.1/http/cookie.ts';
 import { CSS } from 'https://deno.land/x/gfm@0.2.3/mod.ts';
-import { Action, ActionStyleTypes, Header, Logo } from '@fathym/atomic';
+import { Action, ActionStyleTypes, ChatSet, Header, Logo, Thinky } from '@fathym/atomic';
 import { merge } from '@fathym/common';
 import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac/runtime';
 import { EaCWebState } from '../../src/state/EaCWebState.ts';
-import Thinky, { ChatSet } from '../components/thinky/Thinky.tsx';
 
 export type MainLayoutData = {
   ActiveChat?: string;
