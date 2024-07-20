@@ -32,6 +32,8 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
   constructor() {}
 
   public Setup(config: EaCRuntimeConfig): Promise<EaCRuntimePluginConfig> {
+    const thinkyRoot = Deno.env.get('THINKY_ROOT') || 'http://localhost:6132';
+
     const pluginConfig: EaCRuntimePluginConfig = {
       Name: 'EaCWebPlugin',
       Plugins: [
@@ -77,7 +79,7 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             },
             ApplicationResolvers: {
               apiProxy: {
-                PathPattern: '/api/eac*',
+                PathPattern: '/api/eac/*',
                 Priority: 200,
               },
               atomicIcons: {
@@ -140,7 +142,7 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             ModifierResolvers: {},
             Processor: {
               Type: 'Proxy',
-              ProxyRoot: 'http://localhost:6130/api/eac',
+              ProxyRoot: Deno.env.get('EAC_API_BASE_URL') ?? 'http://localhost:6130/api/eac/',
             } as EaCProxyProcessor,
           },
           atomicIcons: {
@@ -266,7 +268,7 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             ModifierResolvers: {},
             Processor: {
               Type: 'Proxy',
-              ProxyRoot: 'http://localhost:6132/connect/azure/',
+              ProxyRoot: `${thinkyRoot}/connect/azure/`,
             } as EaCProxyProcessor,
           },
           thinkyProxy: {
@@ -277,7 +279,7 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             ModifierResolvers: {},
             Processor: {
               Type: 'Proxy',
-              ProxyRoot: 'http://localhost:6132/circuits',
+              ProxyRoot: `${thinkyRoot}/circuits`,
             } as EaCProxyProcessor,
           },
           thinkyPublicProxy: {
@@ -288,7 +290,7 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             ModifierResolvers: {},
             Processor: {
               Type: 'Proxy',
-              ProxyRoot: 'http://localhost:6132/public-circuits',
+              ProxyRoot: `${thinkyRoot}/public-circuits`,
             } as EaCProxyProcessor,
           },
           demo: {
