@@ -1,6 +1,16 @@
-import { getCookies, setCookie } from 'https://deno.land/std@0.220.1/http/cookie.ts';
+import {
+  getCookies,
+  setCookie,
+} from 'https://deno.land/std@0.220.1/http/cookie.ts';
 import { CSS } from 'https://deno.land/x/gfm@0.2.3/mod.ts';
-import { Action, ActionStyleTypes, ChatSet, Header, Logo, Thinky } from '@fathym/atomic';
+import {
+  Action,
+  ActionStyleTypes,
+  ChatSet,
+  Header,
+  Logo,
+  Thinky,
+} from '@fathym/atomic';
 import { merge } from '@fathym/common';
 import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac/runtime';
 import { EaCWebState } from '../../src/state/EaCWebState.ts';
@@ -56,21 +66,20 @@ export default function Layout({
   return (
     <html>
       <head>
-        <meta charset='utf-8' />
-        <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <title>Fathym</title>
 
-        <link rel='shortcut icon' type='image/png' href='/thinky.png' />
+        <link rel="shortcut icon" type="image/png" href="/thinky.png" />
 
         <link
-          href='https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap'
-          rel='stylesheet'
-        >
-        </link>
+          href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap"
+          rel="stylesheet"
+        ></link>
 
         <link
-          rel='stylesheet'
+          rel="stylesheet"
           href={`/tailwind/styles.css?Revision=${Revision}`}
           data-eac-bypass-base
         />
@@ -78,13 +87,13 @@ export default function Layout({
         <style dangerouslySetInnerHTML={{ __html: CSS }}></style>
       </head>
 
-      <body class='bg-slate-50 dark:bg-slate-900 text-black dark:text-white font-nun'>
-        <div className='flex flex-col h-screen'>
+      <body class="bg-slate-50 dark:bg-slate-900 text-black dark:text-white font-nun">
+        <div className="flex flex-col h-screen">
           <Header
-            class='h-[64px] text-center py-4 text-2xl font-bold drop-shadow-md z-50'
+            class="h-[64px] text-center py-4 text-2xl font-bold drop-shadow-md z-50"
             logo={
               <Action
-                href='/'
+                href="/"
                 actionStyle={ActionStyleTypes.Link | ActionStyleTypes.Rounded}
               >
                 <Logo />
@@ -97,7 +106,7 @@ export default function Layout({
             chats={Data.Chats}
             hideChatHeader={true}
             jwt={Data.EaCJWT}
-            root='/api/public-thinky/'
+            root="/api/public-thinky/"
           >
             <Component />
           </Thinky>

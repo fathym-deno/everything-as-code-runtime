@@ -1,6 +1,7 @@
 {
   "name": "@fathym/everything-as-code-runtime",
-  "lock": false,
+  "exports": "./main.ts",
+  "version": "0.0.0",
   "tasks": {
     "build": "deno task build:fmt && deno task build:lint && deno task build:main",
     "build:dev": "deno run -A dev.ts build",
@@ -18,10 +19,9 @@
     "test": "deno test -A tests/tests.ts --coverage=cov --parallel --trace-leaks"
   },
   "imports": {
-    // "@fathym/atomic": "../fathym-atomic/mod.ts",
-    "@fathym/atomic": "https://deno.land/x/fathym_atomic_design_kit@v0.0.143/mod.ts",
+    "@fathym/atomic": "https://deno.land/x/fathym_atomic_design_kit@v0.0.155/mod.ts",
     // "@fathym/atomic/": "../fathym-atomic/",
-    "@fathym/atomic/": "https://deno.land/x/fathym_atomic_design_kit@v0.0.143/",
+    "@fathym/atomic/": "https://deno.land/x/fathym_atomic_design_kit@v0.0.155/",
     // "@fathym/atomic-icons": "../atomic-icons/mod.ts",
     "@fathym/atomic-icons": "https://deno.land/x/fathym_atomic_icons@v0.0.44/mod.ts",
     "@fathym/atomic-icons/plugin": "https://deno.land/x/fathym_atomic_icons@v0.0.44/plugin.ts",
@@ -80,5 +80,6 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "preact"
-  }
+  },
+  "lock": false
 }
