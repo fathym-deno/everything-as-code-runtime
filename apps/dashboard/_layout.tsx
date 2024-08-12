@@ -8,7 +8,7 @@ import {
   Thinky,
 } from '@fathym/atomic';
 import { merge } from '@fathym/common';
-import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac/runtime';
+import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac-runtime';
 import { EaCWebState } from '../../src/state/EaCWebState.ts';
 
 export type MainLayoutData = {

@@ -29,7 +29,7 @@ const testEaC = {
       EntryPoints: ['resolvers.ts'],
       IncludeDependencies: false,
       WorkerPath: import.meta.resolve(
-        '@fathym/eac/runtime/src/runtime/dfs/workers/EaCESMDistributedFileSystemWorker.ts',
+        '@fathym/eac-runtime/src/runtime/dfs/workers/EaCESMDistributedFileSystemWorker.ts',
       ),
     } as EaCESMDistributedFileSystem,
   },

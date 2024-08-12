@@ -1,4 +1,4 @@
-import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac/runtime';
+import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac-runtime';
 import { EaCWebState } from '../../src/state/EaCWebState.ts';
 
 export type DashboardPageData = {

@@ -1,9 +1,9 @@
-import 'npm:html-to-text';
+import 'html-to-text';
 import {
   DefaultEaCConfig,
   defineEaCConfig,
   EaCRuntime,
-} from '@fathym/eac/runtime';
+} from '@fathym/eac-runtime';
 import EaCWebPlugin from '../src/plugins/EaCWebPlugin.ts';
 
 export const config = defineEaCConfig({

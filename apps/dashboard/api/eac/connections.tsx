@@ -1,6 +1,6 @@
-import { EaCRuntimeHandlerResult } from '@fathym/eac/runtime';
+import { EaCRuntimeHandlerResult } from '@fathym/eac-runtime';
 import { EaCWebState } from '../../../../src/state/EaCWebState.ts';
-import { loadEaCSvc } from '@fathym/eac/api';
+import { loadEaCSvc } from '@fathym/eac-api';
 
 export const handler: EaCRuntimeHandlerResult<EaCWebState> = {
   async GET(_req, ctx) {

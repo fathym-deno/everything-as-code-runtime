@@ -5,7 +5,7 @@ export * from 'https://deno.land/std@0.203.0/assert/mod.ts';
 
 export * from '@fathym/common';
 export * from '@fathym/eac';
-export * from '@fathym/eac/runtime';
+export * from '@fathym/eac-runtime';
 export * from '@fathym/ioc';
 export * from '@fathym/synaptic';
 

@@ -1,4 +1,4 @@
-import { EaCRuntimeHandlerResult } from '@fathym/eac/runtime';
+import { EaCRuntimeHandlerResult } from '@fathym/eac-runtime';
 import { EaCWebState } from '../../../../src/state/EaCWebState.ts';
 
 export const handler: EaCRuntimeHandlerResult<EaCWebState> = {

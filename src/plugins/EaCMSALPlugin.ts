@@ -1,9 +1,9 @@
-import { EaCRuntimeConfig, EaCRuntimePlugin, EaCRuntimePluginConfig } from '@fathym/eac/runtime';
+import { EaCRuntimeConfig, EaCRuntimePlugin, EaCRuntimePluginConfig } from '@fathym/eac-runtime';
 import { MSALPlugin } from '@fathym/msal';
-import { loadOAuth2ClientConfig } from '@fathym/eac/runtime';
+import { loadOAuth2ClientConfig } from '@fathym/eac-runtime';
 import { createOAuthHelpers } from '@fathym/common/oauth';
 
-export default class OpenIndustrialMSALPlugin implements EaCRuntimePlugin {
+export default class EaCMSALPlugin implements EaCRuntimePlugin {
   constructor() {}
 
   public Setup(_config: EaCRuntimeConfig): Promise<EaCRuntimePluginConfig> {

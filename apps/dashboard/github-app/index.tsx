@@ -1,8 +1,8 @@
 import { Action, ActionGroup, Input } from '@fathym/atomic';
 import { EaCGitHubAppProviderDetails } from '@fathym/eac';
-import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac/runtime';
+import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac-runtime';
 import { EaCWebState } from '../../../src/state/EaCWebState.ts';
-import { EaCStatusProcessingTypes, FathymEaC, loadEaCSvc, waitForStatus } from '@fathym/eac/api';
+import { EaCStatusProcessingTypes, FathymEaC, loadEaCSvc, waitForStatus } from '@fathym/eac-api';
 import { redirectRequest } from '@fathym/common';
 
 interface GitHubAppPageData {

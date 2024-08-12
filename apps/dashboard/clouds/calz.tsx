@@ -1,4 +1,4 @@
-import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac/runtime';
+import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac-runtime';
 import { EaCWebState } from '../../../src/state/EaCWebState.ts';
 import { mergeWithArrays, redirectRequest } from '@fathym/common';
 import {
@@ -8,10 +8,10 @@ import {
   loadEaCAzureSvc,
   loadEaCSvc,
   waitForStatus,
-} from '@fathym/eac/api';
+} from '@fathym/eac-api';
 import { EaCCloudAzureDetails, EaCCloudResourceFormatDetails } from '@fathym/eac';
 import { CloudCALZForm } from '@fathym/atomic';
-import { Location } from 'npm:@azure/arm-subscriptions';
+import { Location } from '@azure/arm-subscriptions';
 
 interface CALZPageData {
   cloudLookup?: string;

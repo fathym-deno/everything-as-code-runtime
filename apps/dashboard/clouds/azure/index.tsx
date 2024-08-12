@@ -1,4 +1,4 @@
-import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac/runtime';
+import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac-runtime';
 import { EaCWebState } from '../../../../src/state/EaCWebState.ts';
 import { redirectRequest } from '@fathym/common';
 import {
@@ -7,7 +7,7 @@ import {
   loadEaCAzureSvc,
   loadEaCSvc,
   waitForStatus,
-} from '@fathym/eac/api';
+} from '@fathym/eac-api';
 import { EaCCloudAzureDetails } from '@fathym/eac';
 import { ConnectAzure } from '@fathym/atomic';
 

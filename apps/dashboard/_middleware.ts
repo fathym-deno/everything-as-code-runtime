@@ -1,6 +1,6 @@
-import { FathymEaC, loadEaCSvc } from '@fathym/eac/api';
+import { FathymEaC, loadEaCSvc } from '@fathym/eac-api';
 import { createAzureADOAuthConfig, createOAuthHelpers } from '@fathym/common/oauth';
-import { EaCRuntimeContext, EaCRuntimeHandler } from '@fathym/eac/runtime';
+import { EaCRuntimeContext, EaCRuntimeHandler } from '@fathym/eac-runtime';
 import { EaCWebState } from '../../src/state/EaCWebState.ts';
 import { EaCAzureADProviderDetails } from '@fathym/eac';
 

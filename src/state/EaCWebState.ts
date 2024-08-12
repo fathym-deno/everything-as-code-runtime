@@ -1,4 +1,4 @@
-import { FathymEaC } from '@fathym/eac/api';
+import { FathymEaC } from '@fathym/eac-api';
 
 export type EaCWebState = {
   AzureAccessToken?: string;

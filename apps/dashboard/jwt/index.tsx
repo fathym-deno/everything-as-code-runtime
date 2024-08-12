@@ -1,6 +1,6 @@
 import { Action, CopyInput } from '@fathym/atomic';
 import { loadJwtConfig } from '@fathym/eac';
-import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac/runtime';
+import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac-runtime';
 import { EaCWebState } from '../../../src/state/EaCWebState.ts';
 
 interface JWTPageData {
