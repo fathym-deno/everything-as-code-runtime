@@ -1,8 +1,9 @@
-import { FathymEaC, loadEaCSvc } from '@fathym/eac-api';
+import { EaCAzureADProviderDetails } from '@fathym/eac/identity';
+import { FathymEaC } from '@fathym/eac-api';
+import { loadEaCSvc } from '@fathym/eac-api/client';
 import { createAzureADOAuthConfig, createOAuthHelpers } from '@fathym/common/oauth';
 import { EaCRuntimeContext, EaCRuntimeHandler } from '@fathym/eac-runtime';
 import { EaCWebState } from '../../src/state/EaCWebState.ts';
-import { EaCAzureADProviderDetails } from '@fathym/eac';
 
 export default [
   async (req, ctx: EaCRuntimeContext<EaCWebState>) => {

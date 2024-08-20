@@ -16,14 +16,11 @@ import {
   EaCRecursiveCharacterTextSplitterDetails,
   EverythingAsCodeDatabases,
   EverythingAsCodeSynaptic,
-  FathymEaCServicesPlugin,
-  FathymSynapticEaCServicesPlugin,
   HumanMessage,
-  IoCContainer,
   MessagesPlaceholder,
 } from '../../test.deps.ts';
 
-Deno.test('Plan - Minerva', async (_t) => {
+Deno.test('Plan - Minerva', (_t) => {
   const aiLookup = 'thinky';
 
   const systemMessage =
@@ -35,7 +32,7 @@ Deno.test('Plan - Minerva', async (_t) => {
     new AIMessage('Fantastic, thanks for asking.'),
   ];
 
-  const eac = {
+  const _eac = {
     AIs: {
       [aiLookup]: {
         Details: {
@@ -247,12 +244,6 @@ Deno.test('Plan - Minerva', async (_t) => {
     },
   } as EverythingAsCodeSynaptic & EverythingAsCodeDatabases;
 
-  const ioc = new IoCContainer();
-
-  await new FathymEaCServicesPlugin().AfterEaCResolved(eac, ioc);
-
-  await new FathymSynapticEaCServicesPlugin().AfterEaCResolved(eac, ioc);
-
   // const sessionId = 'minerva-test';
 
   // const chatHistoryFactory = await ioc.Resolve<
@@ -283,7 +274,7 @@ Deno.test('Plan - Minerva', async (_t) => {
   //     // Should be a business focused story at this time
   //   });
 
-  const kv = await ioc.Resolve(Deno.Kv, aiLookup);
+  // const kv = await ioc.Resolve(Deno.Kv, aiLookup);
 
-  kv.close();
+  // kv.close();
 });

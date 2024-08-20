@@ -8,29 +8,23 @@ import {
   FathymAzureContainerCheckPlugin,
 } from '@fathym/eac-runtime';
 import {
-  EaCAzureADB2CProviderDetails,
-  EaCAzureADProviderDetails,
   EaCBaseHREFModifierDetails,
   EaCDenoKVCacheModifierDetails,
-  EaCDenoKVDatabaseDetails,
   EaCDFSProcessor,
-  EaCESMDistributedFileSystem,
-  EaCJSRDistributedFileSystem,
   EaCKeepAliveModifierDetails,
-  EaCLocalDistributedFileSystem,
   EaCOAuthModifierDetails,
   EaCOAuthProcessor,
   EaCPreactAppProcessor,
   EaCProxyProcessor,
   EaCTailwindProcessor,
   EaCTracingModifierDetails,
-} from '@fathym/eac';
+} from '@fathym/eac/applications';
+import { EaCDenoKVDatabaseDetails } from '@fathym/eac/databases';
+import { EaCJSRDistributedFileSystem, EaCLocalDistributedFileSystem } from '@fathym/eac/dfs';
+import { EaCAzureADB2CProviderDetails, EaCAzureADProviderDetails } from '@fathym/eac/identity';
 import { IoCContainer } from '@fathym/ioc';
 import { EaCMSALProcessor } from '@fathym/msal';
-import {
-  EverythingAsCodeSynaptic,
-  FathymSynapticPlugin,
-} from '@fathym/synaptic';
+import { EverythingAsCodeSynaptic, FathymSynapticPlugin } from '@fathym/synaptic';
 import { DefaultEaCWebProcessorHandlerResolver } from './DefaultEaCWebProcessorHandlerResolver.ts';
 import EaCMSALPlugin from './EaCMSALPlugin.ts';
 export default class EaCWebPlugin implements EaCRuntimePlugin {
@@ -83,131 +77,121 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
               },
             },
             ApplicationResolvers: {
-              // apiProxy: {
-              //   PathPattern: '/api/eac/*',
-              //   Priority: 200,
-              // },
-              // atomicIcons: {
-              //   PathPattern: '/icons*',
-              //   Priority: 200,
-              // },
-              // dashboard: {
-              //   PathPattern: '/dashboard*',
-              //   Priority: 100,
-              //   IsPrivate: true,
-              //   IsTriggerSignIn: true,
-              // },
+              apiProxy: {
+                PathPattern: '/api/eac/*',
+                Priority: 200,
+              },
+              atomicIcons: {
+                PathPattern: '/icons*',
+                Priority: 200,
+              },
+              dashboard: {
+                PathPattern: '/dashboard*',
+                Priority: 100,
+                IsPrivate: true,
+                IsTriggerSignIn: true,
+              },
               home: {
                 PathPattern: '*',
                 Priority: 100,
               },
-              // install: {
-              //   PathPattern: '/deno/install',
-              //   Priority: 200,
-              // },
-              // msal: {
-              //   PathPattern: '/azure/oauth/*',
-              //   Priority: 500,
-              //   IsPrivate: true,
-              //   IsTriggerSignIn: true,
-              // },
-              // oauth: {
-              //   PathPattern: '/oauth/*',
-              //   Priority: 500,
-              // },
-              // tailwind: {
-              //   PathPattern: '/tailwind*',
-              //   Priority: 500,
-              // },
-              // thinkyAzureProxy: {
-              //   PathPattern: '/dashboard/thinky/connect/azure/*',
-              //   Priority: 200,
-              //   // IsPrivate: true,
-              // },
-              // thinkyProxy: {
-              //   PathPattern: '/api/thinky*',
-              //   Priority: 200,
-              //   // IsPrivate: true,
-              // },
-              // thinkyPublicProxy: {
-              //   PathPattern: '/api/public-thinky*',
-              //   Priority: 200,
-              //   // IsPrivate: true,
-              // },
-              // demo: {
-              //   PathPattern: '/api/demo*',
-              //   Priority: 200,
-              //   // IsPrivate: true,
-              // },
+              install: {
+                PathPattern: '/deno/install',
+                Priority: 200,
+              },
+              msal: {
+                PathPattern: '/azure/oauth/*',
+                Priority: 500,
+                IsPrivate: true,
+                IsTriggerSignIn: true,
+              },
+              oauth: {
+                PathPattern: '/oauth/*',
+                Priority: 500,
+              },
+              tailwind: {
+                PathPattern: '/tailwind*',
+                Priority: 500,
+              },
+              thinkyAzureProxy: {
+                PathPattern: '/dashboard/thinky/connect/azure/*',
+                Priority: 200,
+                // IsPrivate: true,
+              },
+              thinkyProxy: {
+                PathPattern: '/api/thinky*',
+                Priority: 200,
+                // IsPrivate: true,
+              },
+              thinkyPublicProxy: {
+                PathPattern: '/api/public-thinky*',
+                Priority: 200,
+                // IsPrivate: true,
+              },
             },
           },
         },
         Applications: {
-          // apiProxy: {
-          //   Details: {
-          //     Name: 'EaC API Proxy',
-          //     Description: 'A proxy for the EaC API service.',
-          //   },
-          //   ModifierResolvers: {},
-          //   Processor: {
-          //     Type: 'Proxy',
-          //     ProxyRoot:
-          //       Deno.env.get('EAC_API_BASE_URL') ??
-          //       'http://localhost:6130/api/eac/',
-          //   } as EaCProxyProcessor,
-          // },
-          // atomicIcons: {
-          //   Details: {
-          //     Name: 'Atomic Icons',
-          //     Description: 'The atomic icons for the project.',
-          //   },
-          //   ModifierResolvers: {},
-          //   Processor: {
-          //     Type: 'AtomicIcons',
-          //     Config: {
-          //       IconSet: {
-          //         IconMap: {
-          //           begin: 'https://api.iconify.design/fe:beginner.svg',
-          //           check:
-          //             'https://api.iconify.design/lets-icons:check-fill.svg',
-          //           copy: 'https://api.iconify.design/solar:copy-outline.svg',
-          //           delete:
-          //             'https://api.iconify.design/material-symbols-light:delete.svg',
-          //           edit: 'https://api.iconify.design/mdi:edit.svg',
-          //           loading: 'https://api.iconify.design/mdi:loading.svg',
-          //         },
-          //       },
-          //       Generate: true,
-          //       SpriteSheet: '/iconset',
-          //     },
-          //   } as EaCAtomicIconsProcessor,
-          // },
-          // dashboard: {
-          //   Details: {
-          //     Name: 'Dashboard Site',
-          //     Description:
-          //       'The dashboard site to be used for the marketing of the project',
-          //   },
-          //   ModifierResolvers: {
-          //     baseHref: {
-          //       Priority: 10000,
-          //     },
-          //   },
-          //   Processor: {
-          //     Type: 'PreactApp',
-          //     AppDFSLookup: 'local:apps/dashboard',
-          //     ComponentDFSLookups: [
-          //       ['local:apps/components', ['tsx']],
-          //       ['jsr:@fathym/atomic', ['tsx']],
-          //       ['jsr:@fathym/atomic-design-kit', ['tsx']],
-          //     ],
-          //   } as EaCPreactAppProcessor,
-          // },
+          apiProxy: {
+            Details: {
+              Name: 'EaC API Proxy',
+              Description: 'A proxy for the EaC API service.',
+            },
+            ModifierResolvers: {},
+            Processor: {
+              Type: 'Proxy',
+              ProxyRoot: Deno.env.get('EAC_API_BASE_URL') ??
+                'http://localhost:6130/api/eac/',
+            } as EaCProxyProcessor,
+          },
+          atomicIcons: {
+            Details: {
+              Name: 'Atomic Icons',
+              Description: 'The atomic icons for the project.',
+            },
+            ModifierResolvers: {},
+            Processor: {
+              Type: 'AtomicIcons',
+              Config: {
+                IconSet: {
+                  IconMap: {
+                    begin: 'https://api.iconify.design/fe:beginner.svg',
+                    check: 'https://api.iconify.design/lets-icons:check-fill.svg',
+                    copy: 'https://api.iconify.design/solar:copy-outline.svg',
+                    delete: 'https://api.iconify.design/material-symbols-light:delete.svg',
+                    edit: 'https://api.iconify.design/mdi:edit.svg',
+                    loading: 'https://api.iconify.design/mdi:loading.svg',
+                  },
+                },
+                Generate: true,
+                SpriteSheet: '/iconset',
+              },
+            } as EaCAtomicIconsProcessor,
+          },
+          dashboard: {
+            Details: {
+              Name: 'Dashboard Site',
+              Description: 'The dashboard site to be used for the marketing of the project',
+            },
+            ModifierResolvers: {
+              baseHref: {
+                Priority: 10000,
+              },
+            },
+            Processor: {
+              Type: 'PreactApp',
+              AppDFSLookup: 'local:apps/dashboard',
+              ComponentDFSLookups: [
+                ['local:apps/components', ['tsx']],
+                ['jsr:@fathym/atomic', ['tsx']],
+                ['jsr:@fathym/atomic-design-kit', ['tsx']],
+              ],
+            } as EaCPreactAppProcessor,
+          },
           home: {
             Details: {
               Name: 'Home Site',
-              Description:
-                'The home site to be used for the marketing of the project',
+              Description: 'The home site to be used for the marketing of the project',
             },
             ModifierResolvers: {
               baseHref: {
@@ -218,136 +202,114 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
               Type: 'PreactApp',
               AppDFSLookup: 'local:apps/home',
               ComponentDFSLookups: [
-                // ['local:apps/components', ['tsx']],
+                ['local:apps/components', ['tsx']],
                 ['jsr:@fathym/atomic', ['tsx']],
-                // ['jsr:@fathym/atomic-design-kit', ['tsx']],
+                ['jsr:@fathym/atomic-design-kit', ['tsx']],
               ],
             } as EaCPreactAppProcessor,
           },
-          // install: {
-          //   Details: {},
-          //   Processor: {
-          //     Type: 'DFS',
-          //     DFSLookup: 'jsr:@fathym/eac-install',
-          //   } as EaCDFSProcessor,
-          // },
-          // msal: {
-          //   Details: {
-          //     Name: 'OAuth Site',
-          //     Description: 'The site for use in OAuth workflows for a user',
-          //   },
-          //   Processor: {
-          //     Type: 'MSAL',
-          //     Config: {
-          //       MSALSignInOptions: {
-          //         Scopes: [
-          //           'https://management.core.windows.net//user_impersonation',
-          //         ], // Your desired scopes go here
-          //         RedirectURI: '/azure/oauth/callback',
-          //         SuccessRedirect: '/cloud',
-          //       },
-          //       MSALSignOutOptions: {
-          //         ClearSession: false,
-          //         PostLogoutRedirectUri: '/',
-          //       },
-          //     },
-          //     ProviderLookup: 'azure',
-          //   } as EaCMSALProcessor,
-          // },
-          // oauth: {
-          //   Details: {
-          //     Name: 'OAuth Site',
-          //     Description: 'The site for use in OAuth workflows for a user',
-          //   },
-          //   Processor: {
-          //     Type: 'OAuth',
-          //     ProviderLookup: 'adb2c',
-          //   } as EaCOAuthProcessor,
-          // },
-          // tailwind: {
-          //   Details: {
-          //     Name: 'Tailwind for the Site',
-          //     Description: 'A tailwind config for the site',
-          //   },
-          //   ModifierResolvers: {},
-          //   Processor: {
-          //     Type: 'Tailwind',
-          //     DFSLookups: [
-          //       'local:apps/components',
-          //       'local:apps/dashboard',
-          //       'local:apps/home',
-          //       'jsr:@fathym/atomic',
-          //       'jsr:@fathym/atomic-design-kit',
-          //     ],
-          //     ConfigPath: './tailwind.config.ts',
-          //     StylesTemplatePath: './apps/tailwind/styles.css',
-          //     CacheControl: {
-          //       'text\\/css': `public, max-age=${
-          //         60 * 60 * 24 * 365
-          //       }, immutable`,
-          //     },
-          //   } as EaCTailwindProcessor,
-          // },
-          // thinkyAzureProxy: {
-          //   Details: {
-          //     Name: 'Thinky Azure Auth Proxy',
-          //     Description: 'A proxy for Thinky Azure OAuth.',
-          //   },
-          //   ModifierResolvers: {},
-          //   Processor: {
-          //     Type: 'Proxy',
-          //     ProxyRoot: `${thinkyRoot}/connect/azure/`,
-          //   } as EaCProxyProcessor,
-          // },
-          // thinkyProxy: {
-          //   Details: {
-          //     Name: 'Thinky Proxy',
-          //     Description: 'A proxy for to Thinky.',
-          //   },
-          //   ModifierResolvers: {},
-          //   Processor: {
-          //     Type: 'Proxy',
-          //     ProxyRoot: `${thinkyRoot}/circuits`,
-          //   } as EaCProxyProcessor,
-          // },
-          // thinkyPublicProxy: {
-          //   Details: {
-          //     Name: 'Thinky Proxy',
-          //     Description: 'A proxy for to Thinky.',
-          //   },
-          //   ModifierResolvers: {},
-          //   Processor: {
-          //     Type: 'Proxy',
-          //     ProxyRoot: `${thinkyRoot}/public-circuits`,
-          //   } as EaCProxyProcessor,
-          // },
-          // demo: {
-          //   Details: {
-          //     Name: 'Demo',
-          //     Description: 'Demo',
-          //   },
-          //   ModifierResolvers: {},
-          //   Processor: {
-          //     Type: 'Proxy',
-          //     ProxyRoot: 'http://localhost:8000/circuits',
-          //   } as EaCProxyProcessor,
-          // },
+          install: {
+            Details: {},
+            Processor: {
+              Type: 'DFS',
+              DFSLookup: 'jsr:@fathym/eac-install',
+            } as EaCDFSProcessor,
+          },
+          msal: {
+            Details: {
+              Name: 'OAuth Site',
+              Description: 'The site for use in OAuth workflows for a user',
+            },
+            Processor: {
+              Type: 'MSAL',
+              Config: {
+                MSALSignInOptions: {
+                  Scopes: [
+                    'https://management.core.windows.net//user_impersonation',
+                  ], // Your desired scopes go here
+                  RedirectURI: '/azure/oauth/callback',
+                  SuccessRedirect: '/cloud',
+                },
+                MSALSignOutOptions: {
+                  ClearSession: false,
+                  PostLogoutRedirectUri: '/',
+                },
+              },
+              ProviderLookup: 'azure',
+            } as EaCMSALProcessor,
+          },
+          oauth: {
+            Details: {
+              Name: 'OAuth Site',
+              Description: 'The site for use in OAuth workflows for a user',
+            },
+            Processor: {
+              Type: 'OAuth',
+              ProviderLookup: 'adb2c',
+            } as EaCOAuthProcessor,
+          },
+          tailwind: {
+            Details: {
+              Name: 'Tailwind for the Site',
+              Description: 'A tailwind config for the site',
+            },
+            ModifierResolvers: {},
+            Processor: {
+              Type: 'Tailwind',
+              DFSLookups: [
+                'local:apps/components',
+                'local:apps/dashboard',
+                'local:apps/home',
+                'jsr:@fathym/atomic',
+                'jsr:@fathym/atomic-design-kit',
+              ],
+              ConfigPath: './tailwind.config.ts',
+              StylesTemplatePath: './apps/tailwind/styles.css',
+              CacheControl: {
+                'text\\/css': `public, max-age=${60 * 60 * 24 * 365}, immutable`,
+              },
+            } as EaCTailwindProcessor,
+          },
+          thinkyAzureProxy: {
+            Details: {
+              Name: 'Thinky Azure Auth Proxy',
+              Description: 'A proxy for Thinky Azure OAuth.',
+            },
+            ModifierResolvers: {},
+            Processor: {
+              Type: 'Proxy',
+              ProxyRoot: `${thinkyRoot}/connect/azure/`,
+            } as EaCProxyProcessor,
+          },
+          thinkyProxy: {
+            Details: {
+              Name: 'Thinky Proxy',
+              Description: 'A proxy for to Thinky.',
+            },
+            ModifierResolvers: {},
+            Processor: {
+              Type: 'Proxy',
+              ProxyRoot: `${thinkyRoot}/circuits`,
+            } as EaCProxyProcessor,
+          },
+          thinkyPublicProxy: {
+            Details: {
+              Name: 'Thinky Proxy',
+              Description: 'A proxy for to Thinky.',
+            },
+            ModifierResolvers: {},
+            Processor: {
+              Type: 'Proxy',
+              ProxyRoot: `${thinkyRoot}/public-circuits`,
+            } as EaCProxyProcessor,
+          },
         },
         DFS: {
-          // 'local:apps/api/thinky': {
-          //   Type: 'Local',
-          //   FileRoot: './apps/api/thinky/',
-          //   DefaultFile: 'index.ts',
-          //   Extensions: ['ts'],
-          //   WorkerPath: import.meta.resolve(
-          //     '@fathym/eac-runtime/workers/local'
-          //   ),
-          // } as EaCLocalDistributedFileSystem,
           'local:apps/components': {
             Type: 'Local',
             FileRoot: './apps/components/',
             // WorkerPath: import.meta.resolve(
-            //   '@fathym/eac-runtime/workers/local'
+            //   '@fathym/eac-runtime/workers/local',
             // ),
           } as EaCLocalDistributedFileSystem,
           'local:apps/dashboard': {
@@ -372,26 +334,20 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             Type: 'JSR',
             Package: '@fathym/atomic',
             Version: '',
-            // WorkerPath: import.meta.resolve(
-            //   '@fathym/eac-runtime/workers/jsr'
-            // ),
+            // WorkerPath: import.meta.resolve('@fathym/eac-runtime/workers/jsr'),
           } as EaCJSRDistributedFileSystem,
           'jsr:@fathym/atomic-design-kit': {
             Type: 'JSR',
             Package: '@fathym/atomic-design-kit',
             Version: '',
-            // WorkerPath: import.meta.resolve(
-            //   '@fathym/eac-runtime/workers/jsr'
-            // ),
+            // WorkerPath: import.meta.resolve('@fathym/eac-runtime/workers/jsr'),
           } as EaCJSRDistributedFileSystem,
           'jsr:@fathym/eac-install': {
             Type: 'JSR',
             Package: '@fathym/eac-install',
             Version: '',
             DefaultFile: 'install.ts',
-            // WorkerPath: import.meta.resolve(
-            //   '@fathym/eac-runtime/workers/jsr'
-            // ),
+            // WorkerPath: import.meta.resolve('@fathym/eac-runtime/workers/jsr'),
           } as EaCJSRDistributedFileSystem,
         },
         Modifiers: {
@@ -399,16 +355,14 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             Details: {
               Type: 'BaseHREF',
               Name: 'Base HREF',
-              Description:
-                'Adjusts the base HREF of a response based on configureation.',
+              Description: 'Adjusts the base HREF of a response based on configureation.',
             } as EaCBaseHREFModifierDetails,
           },
           keepAlive: {
             Details: {
               Type: 'KeepAlive',
               Name: 'Deno KV Cache',
-              Description:
-                'Lightweight cache to use that stores data in a DenoKV database.',
+              Description: 'Lightweight cache to use that stores data in a DenoKV database.',
               KeepAlivePath: '/_eac/alive',
             } as EaCKeepAliveModifierDetails,
           },
@@ -416,8 +370,7 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             Details: {
               Type: 'OAuth',
               Name: 'OAuth',
-              Description:
-                'Used to restrict user access to various applications.',
+              Description: 'Used to restrict user access to various applications.',
               ProviderLookup: 'adb2c',
               SignInPath: '/oauth/signin',
             } as EaCOAuthModifierDetails,
@@ -436,8 +389,7 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             Details: {
               Type: 'Tracing',
               Name: 'Tracing',
-              Description:
-                'Lightweight cache to use that stores data in a DenoKV database.',
+              Description: 'Lightweight cache to use that stores data in a DenoKV database.',
               TraceRequest: true,
               TraceResponse: true,
             } as EaCTracingModifierDetails,
@@ -448,8 +400,7 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             DatabaseLookup: 'oauth',
             Details: {
               Name: 'Azure ADB2C OAuth Provider',
-              Description:
-                'The provider used to connect with our azure adb2c instance',
+              Description: 'The provider used to connect with our azure adb2c instance',
               ClientID: Deno.env.get('AZURE_ADB2C_CLIENT_ID')!,
               ClientSecret: Deno.env.get('AZURE_ADB2C_CLIENT_SECRET')!,
               Scopes: ['openid', Deno.env.get('AZURE_ADB2C_CLIENT_ID')!],

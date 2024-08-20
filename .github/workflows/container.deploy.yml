@@ -3,7 +3,8 @@ name: Container Build and Deploy
 on: 
   push:
     branches: main
-
+  workflow_dispatch:
+    
 env:
   AZURE_APP_NAME: everything-as-code-runtime
   IMAGE_NAME: everything-as-code-runtime:latest

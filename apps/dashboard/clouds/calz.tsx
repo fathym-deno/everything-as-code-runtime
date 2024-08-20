@@ -1,15 +1,10 @@
 import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac-runtime';
 import { EaCWebState } from '../../../src/state/EaCWebState.ts';
 import { mergeWithArrays, redirectRequest } from '@fathym/common';
-import {
-  EaCServiceDefinitions,
-  EaCStatusProcessingTypes,
-  FathymEaC,
-  loadEaCAzureSvc,
-  loadEaCSvc,
-  waitForStatus,
-} from '@fathym/eac-api';
-import { EaCCloudAzureDetails, EaCCloudResourceFormatDetails } from '@fathym/eac';
+import { EaCServiceDefinitions, EaCStatusProcessingTypes, FathymEaC } from '@fathym/eac-api';
+import { loadEaCAzureSvc, loadEaCSvc } from '@fathym/eac-api/client';
+import { waitForStatus } from '@fathym/eac-api/status';
+import { EaCCloudAzureDetails, EaCCloudResourceFormatDetails } from '@fathym/eac/clouds';
 import { CloudCALZForm } from '@fathym/atomic';
 import { Location } from '@azure/arm-subscriptions';
 
