@@ -24,7 +24,6 @@ import { EaCJSRDistributedFileSystem, EaCLocalDistributedFileSystem } from '@fat
 import { EaCAzureADB2CProviderDetails, EaCAzureADProviderDetails } from '@fathym/eac/identity';
 import { IoCContainer } from '@fathym/ioc';
 import { EaCMSALProcessor } from '@fathym/msal';
-import { EverythingAsCodeSynaptic, FathymSynapticPlugin } from '@fathym/synaptic';
 import { DefaultEaCWebProcessorHandlerResolver } from './DefaultEaCWebProcessorHandlerResolver.ts';
 import EaCMSALPlugin from './EaCMSALPlugin.ts';
 export default class EaCWebPlugin implements EaCRuntimePlugin {
@@ -38,7 +37,6 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
       Plugins: [
         new FathymAzureContainerCheckPlugin(),
         new FathymAtomicIconsPlugin(),
-        new FathymSynapticPlugin(),
         new EaCMSALPlugin(),
       ],
       EaC: {
@@ -456,7 +454,7 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             } as EaCDenoKVDatabaseDetails,
           },
         },
-      } as EaCRuntimeEaC & EverythingAsCodeSynaptic,
+      } as EaCRuntimeEaC,
       IoC: new IoCContainer(),
     };
 
