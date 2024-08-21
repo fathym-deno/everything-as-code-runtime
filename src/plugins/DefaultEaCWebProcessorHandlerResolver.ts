@@ -8,16 +8,13 @@ import {
 import { IoCContainer } from '@fathym/ioc';
 import { DefaultMSALProcessorHandlerResolver } from '@fathym/msal';
 
-export class DefaultEaCWebProcessorHandlerResolver
-  implements ProcessorHandlerResolver
-{
+export class DefaultEaCWebProcessorHandlerResolver implements ProcessorHandlerResolver {
   public async Resolve(
     ioc: IoCContainer,
     appProcCfg: EaCApplicationProcessorConfig,
-    eac: EaCRuntimeEaC
+    eac: EaCRuntimeEaC,
   ) {
-    const atomicIconsResolver =
-      new DefaultAtomicIconsProcessorHandlerResolver();
+    const atomicIconsResolver = new DefaultAtomicIconsProcessorHandlerResolver();
 
     let resolver = await atomicIconsResolver.Resolve(ioc, appProcCfg, eac);
 

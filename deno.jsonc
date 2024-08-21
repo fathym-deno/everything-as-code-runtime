@@ -25,7 +25,8 @@
   "imports": {
     "@azure/arm-subscriptions": "npm:@azure/arm-subscriptions@5.1.0",
     "@deno/gfm": "jsr:@deno/gfm@0.8.2",
-    "@fathym/atomic": "jsr:@fathym/atomic-design-kit@0.0.199",
+    // "@fathym/atomic": "../fathym-atomic/mod.ts",
+    "@fathym/atomic": "jsr:@fathym/atomic-design-kit@0.0.207",
     "@fathym/atomic-icons": "jsr:@fathym/atomic-icons@0.0.59",
     "@fathym/common": "jsr:@fathym/common@0.2.22",
     "@fathym/eac": "jsr:@fathym/eac@0.1.18",
