@@ -322,66 +322,66 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
           'local:apps/components': {
             Type: 'Local',
             FileRoot: './apps/components/',
-            // WorkerPath: import.meta.resolve(
-            //   '@fathym/eac-runtime/workers/local',
-            // ),
+            WorkerPath: import.meta.resolve(
+              '@fathym/eac-runtime/workers/local',
+            ),
           } as EaCLocalDistributedFileSystem,
           'local:apps/dashboard': {
             Type: 'Local',
             FileRoot: './apps/dashboard/',
             DefaultFile: 'index.tsx',
             Extensions: ['tsx'],
-            // WorkerPath: import.meta.resolve(
-            //   '@fathym/eac-runtime/workers/local'
-            // ),
+            WorkerPath: import.meta.resolve(
+              '@fathym/eac-runtime/workers/local',
+            ),
           } as EaCLocalDistributedFileSystem,
           'local:apps/home': {
             Type: 'Local',
             FileRoot: './apps/home/',
             DefaultFile: 'index.tsx',
             Extensions: ['tsx'],
-            // WorkerPath: import.meta.resolve(
-            //   '@fathym/eac-runtime/workers/local'
-            // ),
+            WorkerPath: import.meta.resolve(
+              '@fathym/eac-runtime/workers/local',
+            ),
           } as EaCLocalDistributedFileSystem,
-          // 'jsr:@fathym/atomic': {
-          //   Type: 'JSR',
-          //   Package: '@fathym/atomic',
-          //   Version: '',
-          //   // WorkerPath: import.meta.resolve('@fathym/eac-runtime/workers/jsr'),
-          // } as EaCJSRDistributedFileSystem,
           'jsr:@fathym/atomic': {
-            Type: 'Local',
-            FileRoot: '../atomic/src/',
-            // WorkerPath: import.meta.resolve(
-            //   '@fathym/eac-runtime/workers/local'
-            // ),
-          } as EaCLocalDistributedFileSystem,
+            Type: 'JSR',
+            Package: '@fathym/atomic',
+            Version: '',
+            WorkerPath: import.meta.resolve('@fathym/eac-runtime/workers/jsr'),
+          } as EaCJSRDistributedFileSystem,
+          // 'jsr:@fathym/atomic': {
+          //   Type: 'Local',
+          //   FileRoot: '../atomic/src/',
+          //   // WorkerPath: import.meta.resolve(
+          //   //   '@fathym/eac-runtime/workers/local'
+          //   // ),
+          // } as EaCLocalDistributedFileSystem,
           'jsr:@fathym/atomic-design-kit': {
             Type: 'JSR',
             Package: '@fathym/atomic-design-kit',
             Version: '',
-            // WorkerPath: import.meta.resolve('@fathym/eac-runtime/workers/jsr'),
+            WorkerPath: import.meta.resolve('@fathym/eac-runtime/workers/jsr'),
+          } as EaCJSRDistributedFileSystem,
+          'jsr:@fathym/code-editor': {
+            Type: 'JSR',
+            Package: '@fathym/code-editor',
+            Version: '',
+            WorkerPath: import.meta.resolve('@fathym/eac-runtime/workers/jsr'),
           } as EaCJSRDistributedFileSystem,
           // 'jsr:@fathym/code-editor': {
-          //   Type: 'JSR',
-          //   Package: '@fathym/code-editor',
-          //   Version: '',
-          //   // WorkerPath: import.meta.resolve('@fathym/eac-runtime/workers/jsr'),
-          // } as EaCJSRDistributedFileSystem,
-          'jsr:@fathym/code-editor': {
-            Type: 'Local',
-            FileRoot: '../code-editor/src/',
-            // WorkerPath: import.meta.resolve(
-            //   '@fathym/eac-runtime/workers/local'
-            // ),
-          } as EaCLocalDistributedFileSystem,
+          //   Type: 'Local',
+          //   FileRoot: '../code-editor/src/',
+          //   // WorkerPath: import.meta.resolve(
+          //   //   '@fathym/eac-runtime/workers/local'
+          //   // ),
+          // } as EaCLocalDistributedFileSystem,
           'jsr:@fathym/eac-install': {
             Type: 'JSR',
             Package: '@fathym/eac-install',
             Version: '',
             DefaultFile: 'install.ts',
-            // WorkerPath: import.meta.resolve('@fathym/eac-runtime/workers/jsr'),
+            WorkerPath: import.meta.resolve('@fathym/eac-runtime/workers/jsr'),
           } as EaCJSRDistributedFileSystem,
         },
         Modifiers: {
