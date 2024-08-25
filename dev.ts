@@ -1,4 +1,3 @@
-import 'preact/debug';
 import { start } from '@fathym/eac-runtime';
 import { config, configure } from './configs/eac-runtime.config.ts';
 

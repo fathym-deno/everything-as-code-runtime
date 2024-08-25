@@ -1,11 +1,13 @@
 import { ChatSet } from '@fathym/atomic';
 import { merge } from '@fathym/common';
 import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac-runtime';
-import { EaCWebState } from '../../src/state/EaCWebState.ts';
-import DashboardThinky from '../components/thinky/DashboardThinky.tsx';
-import SiteFrame from '../components/SiteFrame.tsx';
+import { EaCWebState } from '../../../src/state/EaCWebState.ts';
+import DashboardThinky from '../../components/thinky/DashboardThinky.tsx';
+import SiteFrame from '../../components/SiteFrame.tsx';
 
-export type MainLayoutData = {
+export const ParentLayouts: string[] = [];
+
+export type DevelopLayoutData = {
   ActiveChat?: string;
 
   Chats: Record<string, ChatSet>;
@@ -17,9 +19,9 @@ export type MainLayoutData = {
   Username: string;
 };
 
-export const handler: EaCRuntimeHandlerResult<EaCWebState, MainLayoutData> = {
+export const handler: EaCRuntimeHandlerResult<EaCWebState, DevelopLayoutData> = {
   GET: (_req, ctx) => {
-    const data: MainLayoutData = {
+    const data: DevelopLayoutData = {
       ActiveChat: ctx.State.EaC!.EnterpriseLookup!,
       Chats: {
         // [ctx.State.Username!]: {
@@ -27,12 +29,11 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, MainLayoutData> = {
         //   CircuitLookup: 'thinky-dashboard',
         // },
         [ctx.State.EaC!.EnterpriseLookup!]: {
-          Name: 'Enterprise Chat',
+          Name: 'Enterprise Chat2',
           CircuitLookup: 'thinky-dashboard',
         },
       },
       EaCJWT: ctx.State.EaCJWT!,
-      // GroupChats: ,
       Root: '/api/thinky/',
       Username: ctx.State.Username!,
     };
@@ -43,10 +44,10 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, MainLayoutData> = {
   },
 };
 
-export default function Layout({
+export default function DevelopLayout({
   Data,
   Component,
-}: PageProps<MainLayoutData>) {
+}: PageProps<DevelopLayoutData>) {
   return (
     <SiteFrame>
       <DashboardThinky

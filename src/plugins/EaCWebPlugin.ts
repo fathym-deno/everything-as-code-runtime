@@ -16,6 +16,7 @@ import {
   EaCOAuthProcessor,
   EaCPreactAppProcessor,
   EaCProxyProcessor,
+  EaCRedirectProcessor,
   EaCTailwindProcessor,
   EaCTracingModifierDetails,
 } from '@fathym/eac/applications';
@@ -94,8 +95,12 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
                 Priority: 100,
               },
               install: {
-                PathPattern: '/deno/install',
+                PathPattern: '/deno/install/*',
                 Priority: 200,
+              },
+              installRedirect: {
+                PathPattern: '/deno/install',
+                Priority: 300,
               },
               msal: {
                 PathPattern: '/azure/oauth/*',
@@ -183,6 +188,7 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
                 ['local:apps/components', ['tsx']],
                 ['jsr:@fathym/atomic', ['tsx']],
                 ['jsr:@fathym/atomic-design-kit', ['tsx']],
+                ['jsr:@fathym/code-editor', ['tsx']],
               ],
             } as EaCPreactAppProcessor,
           },
@@ -212,6 +218,15 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
               Type: 'DFS',
               DFSLookup: 'jsr:@fathym/eac-install',
             } as EaCDFSProcessor,
+          },
+          installRedirect: {
+            Details: {},
+            Processor: {
+              Type: 'Redirect',
+              Permanent: true,
+              PreserveMethod: true,
+              Redirect: '/deno/install/',
+            } as EaCRedirectProcessor,
           },
           msal: {
             Details: {
@@ -260,6 +275,7 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
                 'local:apps/home',
                 'jsr:@fathym/atomic',
                 'jsr:@fathym/atomic-design-kit',
+                'jsr:@fathym/code-editor',
               ],
               ConfigPath: './tailwind.config.ts',
               StylesTemplatePath: './apps/tailwind/styles.css',
@@ -328,18 +344,38 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             //   '@fathym/eac-runtime/workers/local'
             // ),
           } as EaCLocalDistributedFileSystem,
+          // 'jsr:@fathym/atomic': {
+          //   Type: 'JSR',
+          //   Package: '@fathym/atomic',
+          //   Version: '',
+          //   // WorkerPath: import.meta.resolve('@fathym/eac-runtime/workers/jsr'),
+          // } as EaCJSRDistributedFileSystem,
           'jsr:@fathym/atomic': {
-            Type: 'JSR',
-            Package: '@fathym/atomic',
-            Version: '',
-            // WorkerPath: import.meta.resolve('@fathym/eac-runtime/workers/jsr'),
-          } as EaCJSRDistributedFileSystem,
+            Type: 'Local',
+            FileRoot: '../atomic/src/',
+            // WorkerPath: import.meta.resolve(
+            //   '@fathym/eac-runtime/workers/local'
+            // ),
+          } as EaCLocalDistributedFileSystem,
           'jsr:@fathym/atomic-design-kit': {
             Type: 'JSR',
             Package: '@fathym/atomic-design-kit',
             Version: '',
             // WorkerPath: import.meta.resolve('@fathym/eac-runtime/workers/jsr'),
           } as EaCJSRDistributedFileSystem,
+          // 'jsr:@fathym/code-editor': {
+          //   Type: 'JSR',
+          //   Package: '@fathym/code-editor',
+          //   Version: '',
+          //   // WorkerPath: import.meta.resolve('@fathym/eac-runtime/workers/jsr'),
+          // } as EaCJSRDistributedFileSystem,
+          'jsr:@fathym/code-editor': {
+            Type: 'Local',
+            FileRoot: '../code-editor/src/',
+            // WorkerPath: import.meta.resolve(
+            //   '@fathym/eac-runtime/workers/local'
+            // ),
+          } as EaCLocalDistributedFileSystem,
           'jsr:@fathym/eac-install': {
             Type: 'JSR',
             Package: '@fathym/eac-install',
