@@ -10,4 +10,4 @@ RUN deno cache --reload dev.ts
 
 EXPOSE 6131
 
-CMD ["run", "-A", "main.ts"]
+CMD ["run", "-A", "dev.ts"]
