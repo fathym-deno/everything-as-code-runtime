@@ -6,8 +6,8 @@ ENV PORT=6131
 WORKDIR /app
 
 COPY . .
-RUN deno cache --reload dev.ts
+RUN deno cache --reload main.ts
 
 EXPOSE 6131
 
-CMD ["run", "-A", "dev.ts"]
+CMD ["run", "-A", "main.ts"]
