@@ -43,8 +43,6 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, MainLayoutData> = {
       value: sessionId,
     });
 
-    console.log(sessionId);
-
     return resp;
   },
 };

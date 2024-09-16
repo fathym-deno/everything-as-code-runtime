@@ -4,7 +4,6 @@ import { loadEaCSvc } from '@fathym/eac-api/client';
 
 export const handler: EaCRuntimeHandlerResult<EaCWebState> = {
   async GET(_req, ctx) {
-    console.log(ctx.State.EaCJWT);
     const eacSvc = await loadEaCSvc(ctx.State.EaCJWT!);
 
     const connections = await eacSvc.Connections(ctx.State.EaC!);

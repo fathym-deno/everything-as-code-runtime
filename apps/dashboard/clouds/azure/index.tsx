@@ -143,8 +143,6 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, AzurePageData> = {
       },
     };
 
-    console.log(eac);
-
     const eacSvc = await loadEaCSvc(eac.EnterpriseLookup!, ctx.State.Username!);
 
     const commitResp = await eacSvc.Commit(eac, 60);

@@ -27,6 +27,7 @@ import { IoCContainer } from '@fathym/ioc';
 import { EaCMSALProcessor } from '@fathym/msal';
 import { DefaultEaCWebProcessorHandlerResolver } from './DefaultEaCWebProcessorHandlerResolver.ts';
 import EaCMSALPlugin from './EaCMSALPlugin.ts';
+import { EaCWebLoggingProvider } from './EaCWebLoggingProvider.ts';
 export default class EaCWebPlugin implements EaCRuntimePlugin {
   constructor() {}
 
@@ -40,6 +41,7 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
         new FathymAtomicIconsPlugin(),
         new EaCMSALPlugin(),
       ],
+      IoC: new IoCContainer(),
       EaC: {
         Projects: {
           web: {
@@ -491,8 +493,12 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
           },
         },
       } as EaCRuntimeEaC,
-      IoC: new IoCContainer(),
     };
+
+    pluginConfig.IoC!.Register(
+      EaCWebLoggingProvider,
+      () => new EaCWebLoggingProvider(),
+    );
 
     pluginConfig.IoC!.Register(DefaultEaCWebProcessorHandlerResolver, {
       Type: pluginConfig.IoC!.Symbol('ProcessorHandlerResolver'),

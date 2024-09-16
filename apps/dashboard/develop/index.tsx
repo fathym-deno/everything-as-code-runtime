@@ -1,21 +1,37 @@
 import { useEffect, useRef } from 'preact/hooks';
-import { CodeChangesProfile, CodeEditor, CodeEditorHandle, CodeSource } from '@fathym/code-editor';
+import {
+  CodeChangesProfile,
+  CodeEditor,
+  CodeEditorHandle,
+  CodeSource,
+} from '@fathym/code-editor';
 import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac-runtime';
 import { EaCWebState } from '../../../src/state/EaCWebState.ts';
+import CodeEditorThinky from '../../components/thinky/CodeEditorThinky.tsx';
+import { ChatSet } from '@fathym/atomic';
 
 export const IsIsland = true;
 
 export type DevelopPageData = {
+  ActiveChat?: string;
+
   Changes: CodeChangesProfile;
+
+  Chats: Record<string, ChatSet>;
 
   CodeSources: Record<string, CodeSource>;
 
+  EaCJWT: string;
+
   RecommendedFiles?: string[];
+
+  Root: string;
 };
 
 export const handler: EaCRuntimeHandlerResult<EaCWebState, DevelopPageData> = {
   GET(_req, ctx) {
     const data: DevelopPageData = {
+      ActiveChat: ctx.State.EaC!.EnterpriseLookup!,
       Changes: {
         Name: 'Update documentation',
         Description:
@@ -67,6 +83,16 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, DevelopPageData> = {
           },
         ],
       },
+      Chats: {
+        // [ctx.State.Username!]: {
+        //   Name: 'User Main Chat',
+        //   CircuitLookup: 'thinky-dashboard',
+        // },
+        [ctx.State.EaC!.EnterpriseLookup!]: {
+          Name: 'Code Editor',
+          CircuitLookup: 'lovelace:source-information',
+        },
+      },
       CodeSources: {
         '@fathym-deno/eac-runtime': {
           Files: {
@@ -105,10 +131,12 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, DevelopPageData> = {
           },
         },
       },
+      EaCJWT: ctx.State.EaCJWT!,
       RecommendedFiles: [
         '@fathym-deno/atomic|/README.md',
         '@fathym-deno/eac-runtime|/README.md',
       ],
+      Root: '/api/thinky/',
     };
 
     return ctx.Render(data);
@@ -126,13 +154,18 @@ export default function Develop({ Data }: PageProps<DevelopPageData>) {
     }
   }, [editorRef]);
   return (
-    <>
+    <CodeEditorThinky
+      activeChat={Data.ActiveChat}
+      chats={Data.Chats}
+      jwt={Data.EaCJWT}
+      root={Data.Root}
+    >
       <CodeEditor
         ref={editorRef}
         changes={Data.Changes}
         recommendedFiles={Data.RecommendedFiles}
         sources={Data.CodeSources}
       />
-    </>
+    </CodeEditorThinky>
   );
 }
