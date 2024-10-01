@@ -1,10 +1,5 @@
 import { useEffect, useRef } from 'preact/hooks';
-import {
-  CodeChangesProfile,
-  CodeEditor,
-  CodeEditorHandle,
-  CodeSource,
-} from '@fathym/code-editor';
+import { CodeChangesProfile, CodeEditor, CodeEditorHandle, CodeSource } from '@fathym/code-editor';
 import { EaCRuntimeHandlerResult, PageProps } from '@fathym/eac-runtime';
 import { EaCWebState } from '../../../src/state/EaCWebState.ts';
 import CodeEditorThinky from '../../components/thinky/CodeEditorThinky.tsx';

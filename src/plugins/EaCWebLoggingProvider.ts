@@ -28,20 +28,17 @@ export class EaCWebLoggingProvider extends LoggingProvider {
       },
       loggers: {
         default: {
-          level:
-            (Deno.env.get('LOGGING_DEFAULT_LEVEL') as LevelName) ?? 'DEBUG',
+          level: (Deno.env.get('LOGGING_DEFAULT_LEVEL') as LevelName) ?? 'DEBUG',
           handlers: ['console'],
         },
 
         '@fathym/everything-as-code-runtime': {
-          level:
-            (Deno.env.get('LOGGING_DEFAULT_LEVEL') as LevelName) ?? 'DEBUG',
+          level: (Deno.env.get('LOGGING_DEFAULT_LEVEL') as LevelName) ?? 'DEBUG',
           handlers: ['console'],
         },
 
         ...loggingPackages.reduce((acc, name) => {
-          const logLevelName =
-            Deno.env.get('LOGGING_PACKAGE_LEVEL') ??
+          const logLevelName = Deno.env.get('LOGGING_PACKAGE_LEVEL') ??
             Deno.env.get('LOGGING_DEFAULT_LEVEL') ??
             'DEBUG';
 
