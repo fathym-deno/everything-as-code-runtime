@@ -21,7 +21,10 @@ import {
   EaCTracingModifierDetails,
 } from '@fathym/eac/applications';
 import { EaCDenoKVDatabaseDetails } from '@fathym/eac/databases';
-import { EaCJSRDistributedFileSystem, EaCLocalDistributedFileSystem } from '@fathym/eac/dfs';
+import {
+  EaCJSRDistributedFileSystemDetails,
+  EaCLocalDistributedFileSystemDetails,
+} from '@fathym/eac/dfs';
 import { EaCAzureADB2CProviderDetails, EaCAzureADProviderDetails } from '@fathym/eac/identity';
 import { IoCContainer } from '@fathym/ioc';
 import { EaCMSALProcessor } from '@fathym/msal';
@@ -320,38 +323,48 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
             } as EaCProxyProcessor,
           },
         },
-        DFS: {
+        DFSs: {
           'local:apps/components': {
-            Type: 'Local',
-            FileRoot: './apps/components/',
-            WorkerPath: import.meta.resolve(
-              '@fathym/eac-runtime/workers/local',
-            ),
-          } as EaCLocalDistributedFileSystem,
+            Details: {
+              Type: 'Local',
+              FileRoot: './apps/components/',
+              WorkerPath: import.meta.resolve(
+                '@fathym/eac-runtime/workers/local',
+              ),
+            } as EaCLocalDistributedFileSystemDetails,
+          },
           'local:apps/dashboard': {
-            Type: 'Local',
-            FileRoot: './apps/dashboard/',
-            DefaultFile: 'index.tsx',
-            Extensions: ['tsx'],
-            WorkerPath: import.meta.resolve(
-              '@fathym/eac-runtime/workers/local',
-            ),
-          } as EaCLocalDistributedFileSystem,
+            Details: {
+              Type: 'Local',
+              FileRoot: './apps/dashboard/',
+              DefaultFile: 'index.tsx',
+              Extensions: ['tsx'],
+              WorkerPath: import.meta.resolve(
+                '@fathym/eac-runtime/workers/local',
+              ),
+            } as EaCLocalDistributedFileSystemDetails,
+          },
           'local:apps/home': {
-            Type: 'Local',
-            FileRoot: './apps/home/',
-            DefaultFile: 'index.tsx',
-            Extensions: ['tsx'],
-            WorkerPath: import.meta.resolve(
-              '@fathym/eac-runtime/workers/local',
-            ),
-          } as EaCLocalDistributedFileSystem,
+            Details: {
+              Type: 'Local',
+              FileRoot: './apps/home/',
+              DefaultFile: 'index.tsx',
+              Extensions: ['tsx'],
+              WorkerPath: import.meta.resolve(
+                '@fathym/eac-runtime/workers/local',
+              ),
+            } as EaCLocalDistributedFileSystemDetails,
+          },
           'jsr:@fathym/atomic': {
-            Type: 'JSR',
-            Package: '@fathym/atomic',
-            Version: '',
-            WorkerPath: import.meta.resolve('@fathym/eac-runtime/workers/jsr'),
-          } as EaCJSRDistributedFileSystem,
+            Details: {
+              Type: 'JSR',
+              Package: '@fathym/atomic',
+              Version: '',
+              WorkerPath: import.meta.resolve(
+                '@fathym/eac-runtime/workers/jsr',
+              ),
+            } as EaCJSRDistributedFileSystemDetails,
+          },
           // 'jsr:@fathym/atomic': {
           //   Type: 'Local',
           //   FileRoot: '../atomic/src/',
@@ -360,31 +373,43 @@ export default class EaCWebPlugin implements EaCRuntimePlugin {
           //   // ),
           // } as EaCLocalDistributedFileSystem,
           'jsr:@fathym/atomic-design-kit': {
-            Type: 'JSR',
-            Package: '@fathym/atomic-design-kit',
-            Version: '',
-            WorkerPath: import.meta.resolve('@fathym/eac-runtime/workers/jsr'),
-          } as EaCJSRDistributedFileSystem,
+            Details: {
+              Type: 'JSR',
+              Package: '@fathym/atomic-design-kit',
+              Version: '',
+              WorkerPath: import.meta.resolve(
+                '@fathym/eac-runtime/workers/jsr',
+              ),
+            } as EaCJSRDistributedFileSystemDetails,
+          },
           'jsr:@fathym/code-editor': {
-            Type: 'JSR',
-            Package: '@fathym/code-editor',
-            Version: '',
-            WorkerPath: import.meta.resolve('@fathym/eac-runtime/workers/jsr'),
-          } as EaCJSRDistributedFileSystem,
-          // 'jsr:@fathym/code-editor': {
-          //   Type: 'Local',
-          //   FileRoot: '../code-editor/src/',
-          //   // WorkerPath: import.meta.resolve(
-          //   //   '@fathym/eac-runtime/workers/local'
-          //   // ),
-          // } as EaCLocalDistributedFileSystem,
+            Details: {
+              Type: 'JSR',
+              Package: '@fathym/code-editor',
+              Version: '',
+              WorkerPath: import.meta.resolve(
+                '@fathym/eac-runtime/workers/jsr',
+              ),
+            } as EaCJSRDistributedFileSystemDetails,
+            // 'jsr:@fathym/code-editor': {
+            //   Type: 'Local',
+            //   FileRoot: '../code-editor/src/',
+            //   // WorkerPath: import.meta.resolve(
+            //   //   '@fathym/eac-runtime/workers/local'
+            //   // ),
+            // } as EaCLocalDistributedFileSystem,
+          },
           'jsr:@fathym/eac-install': {
-            Type: 'JSR',
-            Package: '@fathym/eac-install',
-            Version: '',
-            DefaultFile: 'install.ts',
-            WorkerPath: import.meta.resolve('@fathym/eac-runtime/workers/jsr'),
-          } as EaCJSRDistributedFileSystem,
+            Details: {
+              Type: 'JSR',
+              Package: '@fathym/eac-install',
+              Version: '',
+              DefaultFile: 'install.ts',
+              WorkerPath: import.meta.resolve(
+                '@fathym/eac-runtime/workers/jsr',
+              ),
+            } as EaCJSRDistributedFileSystemDetails,
+          },
         },
         Modifiers: {
           baseHref: {
