@@ -20,6 +20,8 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, EnterprisePageData> =
       Enterprises: [],
     };
 
+    console.log(ctx.State.EaC);
+
     if (ctx.State.EaC) {
       const eacSvc = await loadEaCSvc(
         data.CurrentEnterpriseLookup!,
@@ -29,6 +31,8 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, EnterprisePageData> =
       data.Enterprises = await eacSvc.ListForUser(
         ctx.Runtime.EaC.EnterpriseLookup,
       );
+
+      console.log(data.Enterprises);
     }
 
     return ctx.Render(data);
