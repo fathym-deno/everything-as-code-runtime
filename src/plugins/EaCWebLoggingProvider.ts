@@ -25,7 +25,7 @@ export class EaCWebLoggingProvider extends LoggingProvider {
       '@fathym/msal',
     ];
 
-    super(import.meta, {
+    const setupConfig = {
       handlers: {
         console: new ConsoleHandler('DEBUG'),
       },
@@ -52,6 +52,8 @@ export class EaCWebLoggingProvider extends LoggingProvider {
           return acc;
         }, {} as Record<string, LoggerConfig>),
       },
-    });
+    };
+
+    super(import.meta, setupConfig);
   }
 }
