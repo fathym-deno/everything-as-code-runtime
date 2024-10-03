@@ -37,7 +37,7 @@
     // "@fathym/eac-runtime/workers/local": "../eac-runtime/src/runtime/dfs/workers/EaCLocalDistributedFileSystemWorker.ts",
     // "@fathym/eac-runtime/workers/jsr": "../eac-runtime/src/runtime/dfs/workers/EaCJSRDistributedFileSystemWorker.ts",
     // "@fathym/eac-runtime/browser": "../eac-runtime/browser.ts",
-    "@fathym/eac-runtime": "jsr:@fathym/eac-runtime@0.1.40",
+    "@fathym/eac-runtime": "jsr:@fathym/eac-runtime@0.1.41",
     "@fathym/ioc": "jsr:@fathym/ioc@0.0.12",
     "@fathym/msal": "jsr:@fathym/msal@0.0.38",
     "html-to-text": "npm:html-to-text@9.0.5",
