@@ -12,10 +12,12 @@ export class EaCWebLoggingProvider extends LoggingProvider {
 
   constructor() {
     const loggingPackages = [
+      '@fathym/default',
       '@fathym/common/build',
       '@fathym/common/deno-kv',
       '@fathym/common/path',
       '@fathym/eac',
+      '@fathym/eac-api',
       '@fathym/eac-api/client',
       '@fathym/eac-api/status',
       '@fathym/eac-runtime',
