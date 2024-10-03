@@ -42,7 +42,7 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, EnterprisePageData> =
     const formData = await req.formData();
 
     const newEaC: FathymEaC = {
-      EnterpriseLookup: ctx.State.EaC?.EnterpriseLookup || crypto.randomUUID(),
+      EnterpriseLookup: crypto.randomUUID(),
       Details: {
         Name: formData.get('name') as string,
         Description: formData.get('description') as string,

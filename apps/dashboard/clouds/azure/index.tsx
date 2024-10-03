@@ -115,6 +115,12 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, AzurePageData> = {
           return acc;
         }, {} as Record<string, string>);
       });
+
+      await await Promise.all(
+        svcCalls.map(async (sc) => {
+          await sc();
+        }),
+      );
     }
 
     return ctx.Render(data);

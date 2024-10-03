@@ -1,6 +1,6 @@
 import { EaCAzureADProviderDetails } from '@fathym/eac/identity';
 import { FathymEaC } from '@fathym/eac-api';
-import { loadEaCSvc } from '@fathym/eac-api/client';
+import { loadEaCAzureSvc, loadEaCSvc } from '@fathym/eac-api/client';
 import { createAzureADOAuthConfig, createOAuthHelpers } from '@fathym/common/oauth';
 import { EaCRuntimeContext, EaCRuntimeHandler } from '@fathym/eac-runtime';
 import { EaCWebState } from '../../src/state/EaCWebState.ts';
@@ -166,7 +166,18 @@ export default [
       ]);
 
       if (currentAccTok.value) {
-        ctx.State.AzureAccessToken = currentAccTok.value;
+        const eacAzureSvc = await loadEaCAzureSvc(ctx.State.EaCJWT!);
+
+        try {
+          await eacAzureSvc.Tenants(
+            ctx.State.EaC!.EnterpriseLookup!,
+            ctx.State.AzureAccessToken!,
+          );
+
+          ctx.State.AzureAccessToken = currentAccTok.value;
+        } catch (err) {
+          ctx.Runtime.Logs.Package.warn('AzureAccessToken not working.', err);
+        }
       }
     }
 
