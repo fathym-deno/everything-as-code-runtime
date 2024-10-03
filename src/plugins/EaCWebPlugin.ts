@@ -30,7 +30,7 @@ import { IoCContainer } from '@fathym/ioc';
 import { EaCMSALProcessor } from '@fathym/msal';
 import { DefaultEaCWebProcessorHandlerResolver } from './DefaultEaCWebProcessorHandlerResolver.ts';
 import EaCMSALPlugin from './EaCMSALPlugin.ts';
-import { EaCWebLoggingProvider } from './EaCWebLoggingProvider.ts';
+import { EaCWebLoggingProvider } from '../logging/EaCWebLoggingProvider.ts';
 export default class EaCWebPlugin implements EaCRuntimePlugin {
   constructor() {}
 
