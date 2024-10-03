@@ -20,7 +20,7 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, EnterprisePageData> =
       Enterprises: [],
     };
 
-    console.log(ctx.State.EaC);
+    console.log(ctx.Runtime.EaC);
 
     if (ctx.State.EaC) {
       const eacSvc = await loadEaCSvc(
