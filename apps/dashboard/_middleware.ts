@@ -26,9 +26,9 @@ export default [
 
       eac = await eacSvc.Get(currentEntLookup.value);
     } else {
-      let eacSvc = await loadEaCSvc('', ctx.State.Username!);
+      const parentEaCSvc = await loadEaCSvc();
 
-      const eacs = await eacSvc.ListForUser();
+      const eacs = await parentEaCSvc.ListForUser(ctx.State.Username!, ctx.Runtime.EaC.EnterpriseLookup);
 
       if (eacs[0]) {
         await denoKv.set(
@@ -36,7 +36,7 @@ export default [
           eacs[0].EnterpriseLookup,
         );
 
-        eacSvc = await loadEaCSvc(
+        const eacSvc = await loadEaCSvc(
           eacs[0].EnterpriseLookup,
           ctx.State.Username!,
         );
@@ -171,7 +171,7 @@ export default [
         try {
           await eacAzureSvc.Tenants(
             ctx.State.EaC!.EnterpriseLookup!,
-            ctx.State.AzureAccessToken!,
+            currentAccTok.value!,
           );
 
           ctx.State.AzureAccessToken = currentAccTok.value;
