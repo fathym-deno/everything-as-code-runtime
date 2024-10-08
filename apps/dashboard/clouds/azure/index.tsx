@@ -44,9 +44,9 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, AzurePageData> = {
 
           return acc;
         }, {} as Record<string, string>);
-      // });
+        // });
 
-      // svcCalls.push(async () => {
+        // svcCalls.push(async () => {
         const subs = await eacAzureSvc.Subscriptions(
           ctx.State.EaC!.EnterpriseLookup!,
           ctx.State.AzureAccessToken!,
@@ -57,9 +57,9 @@ export const handler: EaCRuntimeHandlerResult<EaCWebState, AzurePageData> = {
 
           return acc;
         }, {} as Record<string, string>);
-      // });
+        // });
 
-      // svcCalls.push(async () => {
+        // svcCalls.push(async () => {
         const billingAccounts = await eacAzureSvc.BillingAccounts(
           ctx.State.EaC!.EnterpriseLookup!,
           ctx.State.AzureAccessToken!,

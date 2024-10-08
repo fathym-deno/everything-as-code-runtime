@@ -28,7 +28,10 @@ export default [
     } else {
       const parentEaCSvc = await loadEaCSvc();
 
-      const eacs = await parentEaCSvc.ListForUser(ctx.State.Username!, ctx.Runtime.EaC.EnterpriseLookup);
+      const eacs = await parentEaCSvc.ListForUser(
+        ctx.State.Username!,
+        ctx.Runtime.EaC.EnterpriseLookup,
+      );
 
       if (eacs[0]) {
         await denoKv.set(
