@@ -10,8 +10,7 @@ export const handler: EaCRuntimeHandlers<EaCWebState> = {
   async POST(req, ctx) {
     const formData = await req.formData();
 
-    const cloudLookup =
-      (formData.get('cloudLookup') as string) || crypto.randomUUID();
+    const cloudLookup = (formData.get('cloudLookup') as string) || crypto.randomUUID();
 
     const eac: FathymEaC = {
       EnterpriseLookup: ctx.State.EaC!.EnterpriseLookup,
@@ -37,7 +36,7 @@ export const handler: EaCRuntimeHandlers<EaCWebState> = {
     const status = await waitForStatus(
       eacSvc,
       commitResp.EnterpriseLookup,
-      commitResp.CommitID
+      commitResp.CommitID,
     );
 
     if (status.Processing == EaCStatusProcessingTypes.COMPLETE) {
@@ -46,7 +45,7 @@ export const handler: EaCRuntimeHandlers<EaCWebState> = {
       return redirectRequest(
         `/dashboard/clouds/azure?commitId=${commitResp.CommitID}`,
         false,
-        false
+        false,
       );
     }
   },
