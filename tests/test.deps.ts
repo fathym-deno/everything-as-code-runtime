@@ -13,7 +13,7 @@ export * from '@fathym/ioc';
 export * from '@fathym/synaptic';
 
 export { z } from 'npm:zod';
-export { zodToJsonSchema } from 'npm:zod-to-json-schema';
+export { zodToJsonSchema } from 'npm:zod-to-json-schema@3.23.3';
 
 export { AzureAISearchQueryType } from 'npm:@langchain/community/vectorstores/azure_aisearch';
 export { type AgentAction } from 'npm:@langchain/core/agents';
